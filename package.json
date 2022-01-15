@@ -18,6 +18,7 @@
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.1",
+    "socket.io": "^4.4.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -71,9 +72,13 @@
     "lint-staged:tsc": "tsc --noEmit && :",
     "lint-staged": "run-p 'lint-staged:* {@}'",
     "build": "webpack -c webpack.config.js --mode production",
-    "dev:api": "ts-node --project ./tsconfig.node.json ./src/server/index.ts",
+    "dev:ws": "ts-node --project ./tsconfig.node.json ./src/server/server.ts",
     "dev:serve": "webpack serve -c webpack.config.js --mode development",
     "test": "jest",
     "start": "run-p 'dev:*'"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.6",
+    "utf-8-validate": "^5.0.8"
   }
 }
