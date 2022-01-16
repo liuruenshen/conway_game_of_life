@@ -1,15 +1,19 @@
 import * as Type from './GameOfLife.interface';
+import * as CommonType from '../server/interface';
+
+export const DEFAULT_DIMENSION: CommonType.Dimension = {
+  upperLeft: { x: 0, y: 0 },
+  bottomRight: { x: 99, y: 99 },
+};
 
 export class GameOfLife {
-  #currentLivingCells: Type.LivingCells = [];
+  #currentLivingCells: CommonType.LivingCells = [];
   #mutatedLivingCells: Type.MutatedLivingCells = [];
   #changedCells: Type.ChangedCells = [];
-  #dimension: Type.Dimension = {
-    upperLeft: { x: 0, y: 0 },
-    bottomRight: { x: 99, y: 99 },
-  };
 
-  constructor(livingCells: Type.LivingCells) {
+  #dimension: CommonType.Dimension = { ...DEFAULT_DIMENSION };
+
+  constructor(livingCells: CommonType.LivingCells) {
     this.#currentLivingCells = livingCells.filter(
       (cell) =>
         cell.position.x >= this.#dimension.upperLeft.x &&
@@ -87,7 +91,7 @@ export class GameOfLife {
       );
   }
 
-  private getPositionKey(position: Type.Cell['position']) {
+  static getPositionKey(position: CommonType.Cell['position']) {
     return `${position.x},${position.y}`;
   }
 
@@ -96,7 +100,7 @@ export class GameOfLife {
     const envolvingCells = this.getEnvolvingCells();
 
     envolvingCells.forEach((cell) => {
-      const posKey = this.getPositionKey(cell.position);
+      const posKey = GameOfLife.getPositionKey(cell.position);
       if (!envolvingCellsMap[posKey]) {
         envolvingCellsMap[posKey] = { ...cell, neighbors: [] };
       }
@@ -114,8 +118,8 @@ export class GameOfLife {
     return envolvingCellsMap;
   }
 
-  private getAppearance(neighbors: Type.Cell['neighbors']) {
-    let result: Type.Hsl = { hue: 0, saturation: 0, light: 0 };
+  private getAppearance(neighbors: CommonType.Cell['neighbors']) {
+    let result: CommonType.Hsl = { hue: 0, saturation: 0, light: 0 };
 
     if (!neighbors.length) {
       return result;
@@ -139,7 +143,7 @@ export class GameOfLife {
 
   private calculateEnvolvedResult() {
     const envolvingCellsMap = this.getEnvolvingCellMap();
-    const newBottomRight: Type.Position = { x: 0, y: 0 };
+    const newBottomRight: CommonType.Position = { x: 0, y: 0 };
 
     this.#changedCells = [];
     this.#mutatedLivingCells = [];
@@ -147,7 +151,7 @@ export class GameOfLife {
     Object.entries(envolvingCellsMap).forEach(([key, cell]) => {
       if (cell.isLiving) {
         if (cell.neighbors.length < 2) {
-          const deadCell: Type.Cell = {
+          const deadCell: CommonType.Cell = {
             ...cell,
             isLiving: false,
             neighbors: [],
@@ -156,7 +160,7 @@ export class GameOfLife {
 
           this.#changedCells.push(deadCell);
         } else if (cell.neighbors.length > 3) {
-          const deadCell: Type.Cell = {
+          const deadCell: CommonType.Cell = {
             ...cell,
             isLiving: false,
             neighbors: [],
@@ -165,7 +169,7 @@ export class GameOfLife {
 
           this.#changedCells.push(deadCell);
         } else {
-          const livingCell: Type.Cell<true> = {
+          const livingCell: CommonType.Cell<true> = {
             ...cell,
             neighbors: [],
             isLiving: true,
@@ -175,7 +179,7 @@ export class GameOfLife {
         }
       } else {
         if (cell.neighbors.length === 3) {
-          const newCell: Type.Cell<true> = {
+          const newCell: CommonType.Cell<true> = {
             ...cell,
             neighbors: [],
             isLiving: true,
@@ -203,6 +207,14 @@ export class GameOfLife {
     if (newBottomRight.y > this.#dimension.bottomRight.y) {
       this.#dimension.bottomRight.y = newBottomRight.y;
     }
+  }
+
+  static get randomHsl(): CommonType.Hsl {
+    return {
+      hue: Math.floor(Math.random() * 361),
+      saturation: Math.floor(Math.random() * 101),
+      light: Math.floor(30 + Math.floor(Math.random() * 70)),
+    };
   }
 
   public runEnvolution() {

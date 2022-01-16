@@ -4,9 +4,15 @@ import isString from 'lodash/isString';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
+import { SetupClientEnv } from './SetupClientEnv';
 
 import { pEvent } from '../../utilities/pEvent';
-import { hasRoom } from '../../modules/room';
+import {
+  getRoom,
+  addPlayer,
+  addGuest,
+  isRunningSimulation,
+} from '../../modules/room';
 import * as Type from '../interface';
 
 export class JoinRoom extends BaseSocketEvent<
@@ -15,6 +21,7 @@ export class JoinRoom extends BaseSocketEvent<
 > {
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
+  #setupClientEnv: SetupClientEnv;
 
   constructor(props: Omit<BaseSocketEventProps<'join-room'>, 'eventName'>) {
     super({
@@ -24,6 +31,7 @@ export class JoinRoom extends BaseSocketEvent<
 
     this.#invalidPayload = new InvalidPayload(props);
     this.#roomJoined = new RoomJoined(props);
+    this.#setupClientEnv = new SetupClientEnv(props);
   }
 
   isJoinRoomPayload(payload: unknown) {
@@ -59,15 +67,24 @@ export class JoinRoom extends BaseSocketEvent<
     return data;
   }
 
-  joinRoom(room: string) {
-    if (!hasRoom(room)) {
+  joinRoom(roomName: string) {
+    const room = getRoom(roomName);
+    if (!room) {
       return;
     }
 
-    this.serverSocket?.join(room);
+    if (isRunningSimulation(roomName)) {
+      addGuest(roomName, { id: this.socket.id });
+    } else {
+      addPlayer(roomName, { id: this.socket.id });
+    }
+
+    this.serverSocket?.join(roomName);
     this.#roomJoined.serverEmitEvent({
-      roomName: room,
+      roomName,
       id: this.serverSocket?.id || '',
     });
+
+    this.#setupClientEnv.serverEmitEvent();
   }
 }

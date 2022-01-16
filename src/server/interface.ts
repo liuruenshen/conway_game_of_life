@@ -41,3 +41,49 @@ export interface RoomJoinedPayload {
 export interface InvalidPayload {
   eventName: string;
 }
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface Dimension {
+  upperLeft: Position;
+  bottomRight: Position;
+}
+
+export interface Hsl {
+  hue: number;
+  saturation: number;
+  light: number;
+}
+
+export interface SetupClientPayload {
+  dimension: Dimension;
+  appearance: Hsl;
+}
+
+export interface Player {
+  id: string;
+  requestStartSimulation: boolean;
+}
+
+export interface Guest {
+  id: string;
+}
+
+export interface Cell<IsLiving extends boolean = false | true> {
+  position: Position;
+  isLiving: IsLiving;
+  neighbors: Hsl[];
+  appearance: Hsl;
+}
+
+export type LivingCells = Cell<true>[];
+
+export interface Room {
+  name: string;
+  players: Record<string, Player>;
+  guests: Record<string, Guest>;
+  livingCells: Record<string, Cell<true>>;
+}
