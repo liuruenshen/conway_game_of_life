@@ -3,7 +3,9 @@ import { InvalidPayload } from './InvalidPayload';
 import * as Type from '../interface';
 import { pEvent } from '../../utilities/pEvent';
 
-import { DEFAULT_DIMENSION, GameOfLife } from '../../core/GameOfLife';
+import { DEFAULT_DIMENSION } from '../../core/GameOfLife';
+
+const CLASS_IDENTIFIER = Symbol('SetupClientEnv');
 
 export class SetupClientEnv extends BaseSocketEvent<
   'setup-client-env',
@@ -27,13 +29,14 @@ export class SetupClientEnv extends BaseSocketEvent<
   serverEmitEvent(): void {
     const payload: Type.SetupClientPayload = {
       dimension: DEFAULT_DIMENSION,
-      appearance: GameOfLife.randomHsl,
     };
 
     this.serverSocket?.emit(this.eventName, payload);
   }
 
-  clientEventHandler(): void {}
+  clientEventHandler(data: Type.SetupClientPayload): void {
+    this.data = data;
+  }
 
   serverEventHandler(): void {}
 
@@ -41,5 +44,13 @@ export class SetupClientEnv extends BaseSocketEvent<
     return pEvent(this.socket, this.eventName, {
       rejectEvents: [this.#invalidPayload.eventName],
     });
+  }
+
+  getClassIdentifer() {
+    return CLASS_IDENTIFIER;
+  }
+
+  static get classIdentifier() {
+    return CLASS_IDENTIFIER;
   }
 }

@@ -15,6 +15,8 @@ import {
 } from '../../modules/room';
 import * as Type from '../interface';
 
+const CLASS_IDENTIFIER = Symbol('JoinRoom');
+
 export class JoinRoom extends BaseSocketEvent<
   'join-room',
   Type.JoinRoomPayload
@@ -73,18 +75,32 @@ export class JoinRoom extends BaseSocketEvent<
       return;
     }
 
+    let newUser: Type.Guest | Type.Player | null = null;
     if (isRunningSimulation(roomName)) {
-      addGuest(roomName, { id: this.socket.id });
+      newUser = addGuest(roomName, { id: this.socket.id }) || null;
     } else {
-      addPlayer(roomName, { id: this.socket.id });
+      newUser = addPlayer(roomName, { id: this.socket.id }) || null;
+    }
+
+    if (!newUser) {
+      return;
     }
 
     this.serverSocket?.join(roomName);
     this.#roomJoined.serverEmitEvent({
       roomName,
-      id: this.serverSocket?.id || '',
+      roomStatus: null,
+      newUser,
     });
 
     this.#setupClientEnv.serverEmitEvent();
+  }
+
+  getClassIdentifer() {
+    return CLASS_IDENTIFIER;
+  }
+
+  static get classIdentifier() {
+    return CLASS_IDENTIFIER;
   }
 }

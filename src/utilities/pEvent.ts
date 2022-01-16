@@ -27,7 +27,7 @@ export class PEventRejectError extends Error {
 
 export function pEvent<T>(
   instance: EventEmitter,
-  eventName: string,
+  event: string | Promise<T>,
   options: PEventOptions = {}
 ) {
   return new Promise<T>((resolve, reject) => {
@@ -46,7 +46,9 @@ export function pEvent<T>(
             reject(
               new PEventRejectError(
                 rejectingEventName,
-                `expect receiving ${eventName}, but ${rejectingEventName}`,
+                event instanceof Promise
+                  ? `Fail to resolve because of rejectingEvent ${rejectingEventName}`
+                  : `expect receiving ${event}, but ${rejectingEventName}`,
                 args
               )
             );
@@ -62,11 +64,15 @@ export function pEvent<T>(
       );
     }
 
-    detatchEventFuncList.push(() => {
-      //@ts-ignore
-      instance.off(eventName, resolveEventHandler);
-    });
+    if (event instanceof Promise) {
+      event.then(resolveEventHandler);
+    } else {
+      detatchEventFuncList.push(() => {
+        //@ts-ignore
+        instance.off(event, resolveEventHandler);
+      });
 
-    instance.on(eventName, resolveEventHandler);
+      instance.on(event, resolveEventHandler);
+    }
   });
 }

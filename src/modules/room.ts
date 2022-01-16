@@ -40,21 +40,25 @@ export function hasGuest(roomName: string, guestId: Type.Guest['id']) {
 
 export function addPlayer(
   roomName: string,
-  player: Omit<Type.Player, 'requestStartSimulation'>
+  player: Omit<Type.Player, 'requestStartSimulation' | 'appearance'>
 ) {
   const plyaerConfig: Type.Player = {
     ...player,
     requestStartSimulation: false,
+    appearance: GameOfLife.randomHsl,
   };
 
-  if (!hasPlayer(roomName, player.id)) {
-    const room = getRoom(roomName);
-    if (!room) {
-      return;
-    }
-
-    room.players[plyaerConfig.id] = plyaerConfig;
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
   }
+
+  if (!hasPlayer(roomName, player.id)) {
+    room.players[plyaerConfig.id] = plyaerConfig;
+    return plyaerConfig;
+  }
+
+  room.players[plyaerConfig.id];
 }
 
 export function removePlayer(roomName: string, playerId: Type.Player['id']) {
@@ -73,14 +77,17 @@ export function addGuest(roomName: string, guest: Type.Guest) {
     ...guest,
   };
 
-  if (!hasGuest(roomName, guest.id)) {
-    const room = getRoom(roomName);
-    if (!room) {
-      return;
-    }
-
-    room.guests[guestConfig.id] = guestConfig;
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
   }
+
+  if (!hasGuest(roomName, guest.id)) {
+    room.guests[guestConfig.id] = guestConfig;
+    return guestConfig;
+  }
+
+  return room.guests[guestConfig.id];
 }
 
 export function removeGuest(roomName: string, guestId: Type.Guest['id']) {
@@ -131,10 +138,32 @@ export function addLivingCell(roomName: string, newCell: Type.Cell) {
 export function isRunningSimulation(roomName: string) {
   const room = getRoom(roomName);
   if (!room) {
-    return;
+    return false;
+  }
+
+  if (!room.players.length) {
+    return false;
   }
 
   return Object.entries(room.players)
     .map(([key, player]) => player)
     .reduce((result, player) => result && player.requestStartSimulation, true);
+}
+
+export function getPlayers(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
+  }
+
+  return Object.entries(room.players).map(([key, player]) => player);
+}
+
+export function getGuests(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
+  }
+
+  return Object.entries(room.guests).map(([key, guest]) => guest);
 }

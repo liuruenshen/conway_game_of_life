@@ -14,9 +14,12 @@ export type IOSocket = Socket<
   DefaultEventsMap,
   DefaultEventsMap,
   any
->;
+> & { [name: symbol]: unknown };
 
-export type IOClientSocket = ClientSocket<DefaultEventsMap, DefaultEventsMap>;
+export type IOClientSocket = ClientSocket<
+  DefaultEventsMap,
+  DefaultEventsMap
+> & { [name: symbol]: unknown };
 
 export type SocketEventHandlers = (server: IOServer, socket: IOSocket) => void;
 export type SocketEvenEmitter<Arg> = (
@@ -35,7 +38,11 @@ export interface JoinRoomPayload {
 
 export interface RoomJoinedPayload {
   roomName: string;
-  id: string;
+  roomStatus: {
+    players: Player[];
+    guests: Guest[];
+  } | null;
+  newUser: Player | Guest | null;
 }
 
 export interface InvalidPayload {
@@ -60,12 +67,12 @@ export interface Hsl {
 
 export interface SetupClientPayload {
   dimension: Dimension;
-  appearance: Hsl;
 }
 
 export interface Player {
   id: string;
   requestStartSimulation: boolean;
+  appearance: Hsl;
 }
 
 export interface Guest {

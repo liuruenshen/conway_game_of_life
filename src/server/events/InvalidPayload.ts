@@ -2,6 +2,8 @@ import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { pEvent } from '../../utilities/pEvent';
 import * as Type from '../interface';
 
+const CLASS_IDENTIFIER = Symbol('InvalidPayload');
+
 export class InvalidPayload extends BaseSocketEvent<
   'invalid-payload',
   Type.InvalidPayload
@@ -34,4 +36,12 @@ export class InvalidPayload extends BaseSocketEvent<
   serverEventHandler(): void {}
 
   clientEventHandler(): void {}
+
+  getClassIdentifer() {
+    return CLASS_IDENTIFIER;
+  }
+
+  static get classIdentifier() {
+    return CLASS_IDENTIFIER;
+  }
 }

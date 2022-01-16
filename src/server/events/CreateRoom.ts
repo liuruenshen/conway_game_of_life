@@ -8,6 +8,8 @@ import { addRoom } from '../../modules/room';
 import { InvalidPayload } from './InvalidPayload';
 import { JoinRoom } from './JoinRoom';
 
+const CLASS_IDENTIFIER = Symbol('CreateRoom');
+
 export class CreateRoom extends BaseSocketEvent<
   'create-room',
   Type.CreateRoomPayload
@@ -58,5 +60,13 @@ export class CreateRoom extends BaseSocketEvent<
 
   promisifyEvent(): Promise<Type.CreateRoomPayload> {
     return this.rejectUnimplementedPromisify();
+  }
+
+  getClassIdentifer() {
+    return CLASS_IDENTIFIER;
+  }
+
+  static get classIdentifier() {
+    return CLASS_IDENTIFIER;
   }
 }
