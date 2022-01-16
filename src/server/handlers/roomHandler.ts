@@ -1,20 +1,23 @@
 import * as Type from '../interface';
 import { CreateRoom } from '../events/CreateRoom';
 import { JoinRoom } from '../events/JoinRoom';
+import { LeaveRoom } from '../events/LeaveRoom';
 
 const roomHandler: Type.SocketEventHandlers = (server, socket) => {
-  const createRoom = new CreateRoom({
+  new CreateRoom({
     server,
     serverSocket: socket,
   });
 
-  const joinRoom = new JoinRoom({
+  new JoinRoom({
     server,
     serverSocket: socket,
   });
 
-  createRoom.severAttatchEvent();
-  joinRoom.severAttatchEvent();
+  new LeaveRoom({
+    server,
+    serverSocket: socket,
+  });
 };
 
 export { roomHandler };

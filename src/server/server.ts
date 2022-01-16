@@ -1,11 +1,12 @@
 import { Server } from 'socket.io';
 import { roomHandler } from './handlers/roomHandler';
 import { TESTING_WS_PORT, WS_PORT } from './constant';
+import * as Type from './interface';
 
 const io = new Server({ cors: { origin: '*' } });
 
 io.on('connection', (socket) => {
-  roomHandler(io, socket);
+  roomHandler(io, socket as Type.IOSocket);
 });
 
 const LISTENING_PORT =

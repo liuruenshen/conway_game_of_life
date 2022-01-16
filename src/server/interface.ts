@@ -14,9 +14,12 @@ export type IOSocket = Socket<
   DefaultEventsMap,
   DefaultEventsMap,
   any
->;
+> & { [name: symbol]: unknown };
 
-export type IOClientSocket = ClientSocket<DefaultEventsMap, DefaultEventsMap>;
+export type IOClientSocket = ClientSocket<
+  DefaultEventsMap,
+  DefaultEventsMap
+> & { [name: symbol]: unknown };
 
 export type SocketEventHandlers = (server: IOServer, socket: IOSocket) => void;
 export type SocketEvenEmitter<Arg> = (
@@ -33,11 +36,70 @@ export interface JoinRoomPayload {
   roomName: string;
 }
 
+export interface LeaveRoomPayload {
+  roomName: string;
+}
+
 export interface RoomJoinedPayload {
   roomName: string;
-  id: string;
+  roomStatus: {
+    players: Player[];
+    guests: Guest[];
+  } | null;
+  newUser: Player | Guest | null;
+}
+
+export interface RoomLeavedPayload {
+  roomName: string;
+  leavedUser: Player | Guest;
 }
 
 export interface InvalidPayload {
   eventName: string;
+}
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface Dimension {
+  upperLeft: Position;
+  bottomRight: Position;
+}
+
+export interface Hsl {
+  hue: number;
+  saturation: number;
+  light: number;
+}
+
+export interface SetupClientPayload {
+  dimension: Dimension;
+}
+
+export interface Player {
+  id: string;
+  requestStartSimulation: boolean;
+  appearance: Hsl;
+}
+
+export interface Guest {
+  id: string;
+}
+
+export interface Cell<IsLiving extends boolean = false | true> {
+  position: Position;
+  isLiving: IsLiving;
+  neighbors: Hsl[];
+  appearance: Hsl;
+}
+
+export type LivingCells = Cell<true>[];
+
+export interface Room {
+  name: string;
+  players: Record<string, Player>;
+  guests: Record<string, Guest>;
+  livingCells: Record<string, Cell<true>>;
 }
