@@ -32,33 +32,36 @@ export abstract class BaseSocketEvent<E extends string, T> {
     this.serverEventHandler = this.serverEventHandler.bind(this);
     this.clientEventHandler = this.clientEventHandler.bind(this);
 
+    const instanceList: GeneralBaseSocketEvent[] =
+      (this.socket[CLASS_IDENTIFIER] as GeneralBaseSocketEvent[]) || [];
+
+    const duplicated = instanceList.some(
+      (instance) => instance.getClassIdentifer() === this.getClassIdentifer()
+    );
+
+    if (duplicated) {
+      return;
+    }
+
+    this.socket[CLASS_IDENTIFIER] = instanceList;
+
+    if (!instanceList.length && this.socket === this.#clientSocket) {
+      this.#clientSocket.on('connect', () => {
+        instanceList.forEach((instance) => instance.clientAttatchEvent());
+      });
+    }
+
+    instanceList.push(this);
+    this.bindInstanceToSocket(this.getClassIdentifer());
+
     if (this.#clientSocket) {
-      const instanceList: GeneralBaseSocketEvent[] =
-        (this.#clientSocket[CLASS_IDENTIFIER] as GeneralBaseSocketEvent[]) ||
-        [];
-
-      const duplicated = instanceList.some(
-        (instance) => instance.getClassIdentifer() === this.getClassIdentifer()
-      );
-
-      if (duplicated) {
-        return;
-      }
-
-      this.#clientSocket[CLASS_IDENTIFIER] = instanceList;
-
-      if (!instanceList.length) {
-        this.#clientSocket.on('connect', () => {
-          instanceList.forEach((instance) => instance.clientAttatchEvent());
-        });
-      }
-
-      instanceList.push(this);
-      this.bindInstanceToSocket(this.getClassIdentifer());
-
       if (this.#clientSocket.connected) {
         this.clientAttatchEvent();
       }
+    }
+
+    if (this.#serverSocket) {
+      this.severAttatchEvent();
     }
   }
 
@@ -126,6 +129,23 @@ export abstract class BaseSocketEvent<E extends string, T> {
     if (this.serverSocket) {
       this.serverSocket[classIdentifier] = this;
     }
+  }
+
+  protected getOrSetAttatchedEventSocket<
+    E extends BaseSocketEvent<string, any>
+  >(
+    classEvent: {
+      new (props: Omit<BaseSocketEventProps<string>, 'eventName'>): E;
+      classIdentifier: symbol;
+    },
+    props: Omit<BaseSocketEventProps<string>, 'eventName'>
+  ): E {
+    const socket = this.socket;
+    if (!socket[classEvent.classIdentifier]) {
+      return new classEvent(props);
+    }
+
+    return socket[classEvent.classIdentifier] as E;
   }
 
   abstract serverEmitEvent(payload: T): void;

@@ -7,7 +7,7 @@ import { getFlattenPromise } from '../../utilities/getFlattenPromise';
 import { isPromisePending } from '../../utilities/isPromisePending';
 
 import { InvalidPayload } from './InvalidPayload';
-import { pEvent, PEventRejectError } from '../..//utilities/pEvent';
+import { pEvent } from '../..//utilities/pEvent';
 
 const CLASS_IDENTIFIER = Symbol('RoomJoined');
 

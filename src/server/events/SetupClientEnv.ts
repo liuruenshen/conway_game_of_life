@@ -21,7 +21,10 @@ export class SetupClientEnv extends BaseSocketEvent<
       eventName: 'setup-client-env',
     });
 
-    this.#invalidPayload = new InvalidPayload(props);
+    this.#invalidPayload = this.getOrSetAttatchedEventSocket(
+      InvalidPayload,
+      props
+    );
   }
 
   clientEmitEvent(): void {}

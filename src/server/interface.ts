@@ -36,6 +36,10 @@ export interface JoinRoomPayload {
   roomName: string;
 }
 
+export interface LeaveRoomPayload {
+  roomName: string;
+}
+
 export interface RoomJoinedPayload {
   roomName: string;
   roomStatus: {
@@ -43,6 +47,11 @@ export interface RoomJoinedPayload {
     guests: Guest[];
   } | null;
   newUser: Player | Guest | null;
+}
+
+export interface RoomLeavedPayload {
+  roomName: string;
+  leavedUser: Player | Guest;
 }
 
 export interface InvalidPayload {

@@ -23,8 +23,11 @@ export class CreateRoom extends BaseSocketEvent<
       eventName: 'create-room',
     });
 
-    this.#invalidPayload = new InvalidPayload(props);
-    this.#joinRoom = new JoinRoom(props);
+    this.#invalidPayload = this.getOrSetAttatchedEventSocket(
+      InvalidPayload,
+      props
+    );
+    this.#joinRoom = this.getOrSetAttatchedEventSocket(JoinRoom, props);
   }
 
   clientEmitEvent(payload: Type.CreateRoomPayload): void {

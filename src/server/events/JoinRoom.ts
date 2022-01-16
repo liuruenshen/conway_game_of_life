@@ -6,7 +6,6 @@ import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 import { SetupClientEnv } from './SetupClientEnv';
 
-import { pEvent } from '../../utilities/pEvent';
 import {
   getRoom,
   addPlayer,
@@ -31,9 +30,15 @@ export class JoinRoom extends BaseSocketEvent<
       eventName: 'join-room',
     });
 
-    this.#invalidPayload = new InvalidPayload(props);
-    this.#roomJoined = new RoomJoined(props);
-    this.#setupClientEnv = new SetupClientEnv(props);
+    this.#invalidPayload = this.getOrSetAttatchedEventSocket(
+      InvalidPayload,
+      props
+    );
+    this.#roomJoined = this.getOrSetAttatchedEventSocket(RoomJoined, props);
+    this.#setupClientEnv = this.getOrSetAttatchedEventSocket(
+      SetupClientEnv,
+      props
+    );
   }
 
   isJoinRoomPayload(payload: unknown) {
@@ -61,12 +66,8 @@ export class JoinRoom extends BaseSocketEvent<
     this.joinRoom(payload.roomName);
   }
 
-  async promisifyEvent(): Promise<Type.JoinRoomPayload> {
-    const [data] = await pEvent<Type.JoinRoomPayload[]>(
-      this.socket,
-      this.eventName
-    );
-    return data;
+  async promisifyEvent() {
+    return this.rejectUnimplementedPromisify();
   }
 
   joinRoom(roomName: string) {
