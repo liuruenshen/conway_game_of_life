@@ -1,12 +1,13 @@
-import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { isPlainObject } from '../../utilities/EnhancedLodash';
 import isString from 'lodash/isString';
+
+import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
+import { isPlainObject } from '../utilities/EnhancedLodash';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomLeaved } from './RoomLeaved';
 import { RoomJoined } from './RoomJoined';
 
-import * as Type from '../interface';
+import * as Type from '../server/interface';
 
 const CLASS_IDENTIFIER = Symbol('LeaveRoom');
 

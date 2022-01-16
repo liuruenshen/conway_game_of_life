@@ -1,4 +1,4 @@
-import * as Type from '../interface';
+import * as Type from '../server/interface';
 
 export interface BaseSocketEventProps<E extends string> {
   server?: Type.IOServer | null;

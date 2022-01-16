@@ -1,6 +1,6 @@
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { pEvent } from '../../utilities/pEvent';
-import * as Type from '../interface';
+import { pEvent } from '../utilities/pEvent';
+import * as Type from '../server/interface';
 
 const CLASS_IDENTIFIER = Symbol('InvalidPayload');
 

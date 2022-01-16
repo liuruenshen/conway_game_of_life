@@ -1,13 +1,14 @@
-import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { isPlainObject } from '../../utilities/EnhancedLodash';
 import isString from 'lodash/isString';
-import * as Type from '../interface';
-import { getGuests, getPlayers } from '../../modules/room';
-import { getFlattenPromise } from '../../utilities/getFlattenPromise';
-import { isPromisePending } from '../../utilities/isPromisePending';
+
+import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
+import { isPlainObject } from '../utilities/EnhancedLodash';
+import * as Type from '../server/interface';
+import { getGuests, getPlayers } from '../modules/room';
+import { getFlattenPromise } from '../utilities/getFlattenPromise';
+import { isPromisePending } from '../utilities/isPromisePending';
 
 import { InvalidPayload } from './InvalidPayload';
-import { pEvent } from '../..//utilities/pEvent';
+import { pEvent } from '../utilities/pEvent';
 
 const CLASS_IDENTIFIER = Symbol('RoomJoined');
 
