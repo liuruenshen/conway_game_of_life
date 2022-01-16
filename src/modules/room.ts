@@ -167,3 +167,17 @@ export function getGuests(roomName: string) {
 
   return Object.entries(room.guests).map(([key, guest]) => guest);
 }
+
+export function findRoomByUserId(userId: string) {
+  for (const [roomName, room] of Object.entries(roomMap)) {
+    if (room.guests[userId]) {
+      return roomName;
+    }
+
+    if (room.players[userId]) {
+      return roomName;
+    }
+  }
+
+  return false;
+}

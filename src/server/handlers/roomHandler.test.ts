@@ -1,11 +1,15 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, Room, Hsl } from '../interface';
+import { IOClientSocket, Hsl } from '../interface';
 import { pEvent, PEventRejectError } from '../../utilities/pEvent';
 import { CreateRoom } from '../events/CreateRoom';
 import { RoomJoined } from '../events/RoomJoined';
+import { RoomLeaved } from '../events/RoomLeaved';
+import { LeaveRoom } from '../events/LeaveRoom';
 import { SetupClientEnv } from '../events/SetupClientEnv';
 import { JoinRoom } from '../events/JoinRoom';
+import { sleep } from '../../utilities/sleep';
+import { isPromisePending } from '../../utilities/isPromisePending';
 
 describe('Test room handler', () => {
   const sockets: IOClientSocket[] = [];
@@ -14,16 +18,19 @@ describe('Test room handler', () => {
     const socket1 = io(`http://localhost:${TESTING_WS_PORT}`) as IOClientSocket;
     const socket2 = io(`http://localhost:${TESTING_WS_PORT}`) as IOClientSocket;
     const socket3 = io(`http://localhost:${TESTING_WS_PORT}`) as IOClientSocket;
+    const socket4 = io(`http://localhost:${TESTING_WS_PORT}`) as IOClientSocket;
 
     await Promise.all([
       pEvent(socket1, 'connect'),
       pEvent(socket2, 'connect'),
       pEvent(socket3, 'connect'),
+      pEvent(socket4, 'connect'),
     ]);
 
     sockets.push(socket1);
     sockets.push(socket2);
     sockets.push(socket3);
+    sockets.push(socket4);
   });
 
   function validateHsl(data: Hsl) {
@@ -42,6 +49,8 @@ describe('Test room handler', () => {
       new CreateRoom({ clientSocket: socket });
       new RoomJoined({ clientSocket: socket });
       new SetupClientEnv({ clientSocket: socket });
+      new RoomLeaved({ clientSocket: socket });
+      new LeaveRoom({ clientSocket: socket });
     });
 
     (sockets[0][CreateRoom.classIdentifier] as CreateRoom).clientEmitEvent({
@@ -223,7 +232,7 @@ describe('Test room handler', () => {
 
     joinRoomList[2].clientEmitEvent({ roomName: 'room1' });
 
-    promises = roomJoinedList.map((roomJoined, index) => {
+    promises = roomJoinedList.slice(0, 3).map((roomJoined, index) => {
       if (index <= 1) {
         return roomJoined.promisifyEvent().then((data) => {
           expect(data).toMatchObject({
@@ -274,7 +283,7 @@ describe('Test room handler', () => {
 
     await Promise.all(promises);
 
-    setupClientEnvList.forEach((setupClientEnv) => {
+    setupClientEnvList.slice(0, 3).forEach((setupClientEnv) => {
       expect(setupClientEnv.data).toMatchObject({
         dimension: {
           upperLeft: { x: 0, y: 0 },
@@ -282,6 +291,113 @@ describe('Test room handler', () => {
         },
       });
     });
+  });
+
+  it('should receive the event that a user has leaved the room', async () => {
+    expect.assertions(13);
+    const leavedUserId = sockets[0].id;
+
+    (sockets[0][LeaveRoom.classIdentifier] as LeaveRoom).clientEmitEvent();
+
+    const promises = sockets.slice(0, 3).map(async (socket) => {
+      const roomLeaved = socket[RoomLeaved.classIdentifier] as RoomLeaved;
+      const roomJoined = socket[RoomJoined.classIdentifier] as RoomJoined;
+      const data = await roomLeaved.promisifyEvent();
+
+      expect(data).toMatchObject({
+        roomName: 'room1',
+        leavedUser: { id: leavedUserId },
+      });
+
+      expect(
+        roomJoined.data?.roomStatus?.players.some(
+          (player) => player.id === leavedUserId
+        )
+      ).toEqual(false);
+      expect(
+        roomJoined.data?.roomStatus?.guests.some(
+          (guest) => guest.id === leavedUserId
+        )
+      ).toEqual(false);
+
+      return data;
+    });
+
+    await Promise.all(promises);
+
+    (sockets[3][JoinRoom.classIdentifier] as JoinRoom).clientEmitEvent({
+      roomName: 'room1',
+    });
+
+    const joinPromises = sockets.map(async (socket, index) => {
+      const roomJoined = socket[RoomJoined.classIdentifier] as RoomJoined;
+      if (index === 0) {
+        const promise = roomJoined.promisifyEvent();
+        await sleep(1000);
+        expect(await isPromisePending(promise)).toBe(true);
+        return;
+      } else {
+        const data = await roomJoined.promisifyEvent();
+        if (index === 3) {
+          expect(data).toMatchObject({
+            newUser: {
+              id: socket.id,
+              requestStartSimulation: false,
+            },
+            roomStatus: {
+              players: [
+                {
+                  id: sockets[1].id,
+                  requestStartSimulation: false,
+                },
+                {
+                  id: sockets[2].id,
+                  requestStartSimulation: false,
+                },
+                {
+                  id: sockets[3].id,
+                  requestStartSimulation: false,
+                },
+              ],
+              guests: [],
+            },
+          });
+        } else {
+          expect(data).toMatchObject({
+            newUser: {
+              id: sockets[3].id,
+              requestStartSimulation: false,
+            },
+            roomStatus: null,
+          });
+        }
+        return data;
+      }
+    });
+
+    await Promise.all(joinPromises);
+  });
+
+  it("should notify the room's users that a user has disconnected from the room", async () => {
+    const disconnectedUserId = sockets[1].id;
+    sockets[1].disconnect();
+
+    const promises = sockets.map(async (socket, index) => {
+      const roomLeaved = socket[RoomLeaved.classIdentifier] as RoomLeaved;
+
+      if (index <= 1) {
+        return Promise.resolve();
+      } else {
+        const data = await roomLeaved.promisifyEvent();
+
+        expect(data).toMatchObject({
+          roomName: 'room1',
+          leavedUser: { id: disconnectedUserId },
+        });
+      }
+    });
+
+    await Promise.all(promises);
   });
 
   afterAll(() => {
