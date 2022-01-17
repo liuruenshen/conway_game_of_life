@@ -3,11 +3,12 @@ import * as Type from '../server/interface';
 
 import { InvalidPayload } from './InvalidPayload';
 
-import { pEvent, pileUpPromisesInitator } from '../utilities/pEvent';
+import { pileUpPromisesInitator } from '../utilities/pEvent';
 import {
   getLivingCells,
   findRoomByUserId,
   runSimulation,
+  getRoom,
 } from '../modules/room';
 import { sleep } from '../utilities/sleep';
 
@@ -46,12 +47,18 @@ export class LivingCellsUpdated extends BaseSocketEvent<
       return;
     }
 
+    const room = getRoom(roomName);
+    if (!room) {
+      return;
+    }
+
     const generator = runSimulation(roomName);
 
     for (const cells of generator) {
       this.serverEmitEvent({
         roomName,
         cells,
+        simulationFrame: room.simulationFrame,
       });
 
       await sleep(500);

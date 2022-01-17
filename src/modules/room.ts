@@ -10,6 +10,7 @@ export function addRoom(roomName: string) {
       players: {},
       guests: {},
       gameOfLife: new GameOfLife([]),
+      simulationFrame: 0,
     };
 
     return true;
@@ -119,13 +120,15 @@ export function isRunningSimulation(roomName: string) {
     return false;
   }
 
-  if (!room.players.length) {
+  const players = getPlayers(roomName) || [];
+  if (!players.length) {
     return false;
   }
 
-  return Object.entries(room.players)
-    .map(([key, player]) => player)
-    .reduce((result, player) => result && player.requestStartSimulation, true);
+  return players.reduce(
+    (result, player) => result && player.requestStartSimulation,
+    true
+  );
 }
 
 export function getPlayers(roomName: string) {
@@ -222,6 +225,7 @@ export function* runSimulation(roomName: string) {
 
   while (isRunningSimulation(roomName)) {
     room.gameOfLife.runEnvolution();
+    room.simulationFrame++;
     yield room.gameOfLife.currentLivingCells;
   }
 }

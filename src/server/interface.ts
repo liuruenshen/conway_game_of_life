@@ -103,6 +103,7 @@ export interface Room {
   players: Record<string, Player>;
   guests: Record<string, Guest>;
   gameOfLife: GameOfLife;
+  simulationFrame: number;
 }
 
 export interface RequestSimulationPayload {
@@ -124,4 +125,5 @@ export type RemoveLivingCellsPayload = AddLivingCellsPayload;
 export interface LivingCellsUpdatedPayload {
   roomName: string;
   cells: Omit<Cell, 'neighbors'>[];
+  simulationFrame?: number;
 }

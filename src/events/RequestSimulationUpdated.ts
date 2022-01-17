@@ -4,7 +4,7 @@ import * as Type from '../server/interface';
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 
-import { pEvent } from '../utilities/pEvent';
+import { pileUpPromisesInitator } from '../utilities/pEvent';
 
 const CLASS_IDENTIFIER = Symbol('RequestSimulationUpdated');
 
@@ -14,6 +14,8 @@ export class RequestSimulationUpdated extends BaseSocketEvent<
 > {
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
+  #pileUpPromise =
+    pileUpPromisesInitator<Type.RequestSimulationUpdatedPayload>();
 
   constructor(
     props: Omit<BaseSocketEventProps<'request-simulation'>, 'eventName'>
@@ -59,18 +61,16 @@ export class RequestSimulationUpdated extends BaseSocketEvent<
     if (foundPlayer) {
       foundPlayer.requestStartSimulation = payload.requestSimulation;
     }
+
+    this.#pileUpPromise.pileUp(payload);
   }
 
   serverEventHandler(): void {}
 
   promisifyEvent(): Promise<Type.RequestSimulationUpdatedPayload> {
-    return pEvent<Type.RequestSimulationUpdatedPayload>(
-      this.socket,
-      this.eventName,
-      {
-        rejectEvents: [this.#invalidPayload.eventName],
-      }
-    );
+    return this.#pileUpPromise.fetch(this.socket, this.eventName, {
+      rejectEvents: [this.#invalidPayload.eventName],
+    });
   }
 
   getClassIdentifer() {

@@ -302,6 +302,94 @@ describe('Test player operations', () => {
     );
   });
 
+  it('should receive the simulation request', async () => {
+    expect.assertions(4);
+
+    (
+      sockets[0][RequestSimulation.classIdentifier] as RequestSimulation
+    ).clientEmitEvent(true);
+
+    (
+      sockets[1][RequestSimulation.classIdentifier] as RequestSimulation
+    ).clientEmitEvent(true);
+
+    const RequestSimulationUpdatedList = sockets.map(
+      (socket) =>
+        socket[
+          RequestSimulationUpdated.classIdentifier
+        ] as RequestSimulationUpdated
+    );
+
+    await Promise.all(
+      RequestSimulationUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          playerId: sockets[0].id,
+          requestSimulation: true,
+        });
+      })
+    );
+
+    await Promise.all(
+      RequestSimulationUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          playerId: sockets[1].id,
+          requestSimulation: true,
+        });
+      })
+    );
+  });
+
+  it('should receive living-cell-updated event', async () => {
+    expect.assertions(10);
+
+    const LivingCellsUpdatedList = sockets.map(
+      (socket) =>
+        socket[LivingCellsUpdated.classIdentifier] as LivingCellsUpdated
+    );
+
+    const promisesList = [];
+    for (let i = 0; i < 5; ++i) {
+      promisesList.push(
+        await Promise.all(
+          LivingCellsUpdatedList.map(async (instance) => {
+            const data = await instance.promisifyEvent();
+
+            expect(data).toMatchObject({
+              roomName: 'room2',
+              cells: [
+                {
+                  position: { x: 11, y: 12 },
+                  isLiving: true,
+                },
+                {
+                  position: { x: 12, y: 11 },
+                  isLiving: true,
+                },
+                {
+                  position: { x: 12, y: 13 },
+                  isLiving: true,
+                },
+                {
+                  position: { x: 13, y: 12 },
+                  isLiving: true,
+                },
+              ],
+              simulationFrame: i + 1,
+            });
+          })
+        )
+      );
+    }
+
+    await Promise.all(promisesList);
+  });
+
   afterAll(() => {
     sockets.forEach((socket) => socket.disconnect());
   });
