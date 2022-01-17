@@ -2,7 +2,7 @@ import { GameOfLife } from './GameOfLife';
 
 describe('Test GameOfLife class', () => {
   it('should calculate the expected envolution result', () => {
-    expect.assertions(2);
+    expect.assertions(1);
 
     const gameOfLife = new GameOfLife([
       {
@@ -83,64 +83,6 @@ describe('Test GameOfLife class', () => {
         position: { x: 1, y: 2 },
         isLiving: true,
         appearance: { hue: 163, saturation: 60, light: 80 },
-        neighbors: [],
-      },
-    ]);
-
-    const changedCells = gameOfLife.changedCells;
-    expect(changedCells).toMatchObject([
-      {
-        position: { x: 0, y: 0 },
-        isLiving: false,
-        appearance: { hue: 0, saturation: 0, light: 0 },
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 106, saturation: 63, light: 70 },
-        position: { x: 0, y: 1 },
-        isLiving: true,
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 50, saturation: 66, light: 60 },
-        position: { x: 1, y: 0 },
-        isLiving: true,
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 0, saturation: 0, light: 0 },
-        position: { x: 1, y: 1 },
-        isLiving: false,
-        neighbors: [],
-      },
-      {
-        position: { x: 2, y: 0 },
-        isLiving: false,
-        appearance: { hue: 0, saturation: 0, light: 0 },
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 106, saturation: 63, light: 70 },
-        position: { x: 2, y: 1 },
-        isLiving: true,
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 163, saturation: 60, light: 80 },
-        position: { x: 1, y: 2 },
-        isLiving: true,
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 0, saturation: 0, light: 0 },
-        position: { x: 0, y: 2 },
-        isLiving: false,
-        neighbors: [],
-      },
-      {
-        appearance: { hue: 0, saturation: 0, light: 0 },
-        position: { x: 2, y: 2 },
-        isLiving: false,
         neighbors: [],
       },
     ]);
