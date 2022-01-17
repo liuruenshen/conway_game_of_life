@@ -8,6 +8,7 @@ import { addLivingCell } from '../modules/room';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
+import { LivingCellsUpdated } from './LivingCellsUpdated';
 
 const CLASS_IDENTIFIER = Symbol('AddLivingCells');
 
@@ -17,6 +18,7 @@ export class AddLivingCells extends BaseSocketEvent<
 > {
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
+  #livingCellsUpdated: LivingCellsUpdated;
 
   constructor(
     props: Omit<BaseSocketEventProps<'add-living-cells'>, 'eventName'>
@@ -31,6 +33,10 @@ export class AddLivingCells extends BaseSocketEvent<
       props
     );
     this.#roomJoined = this.getOrSetAttatchedEventSocket(RoomJoined, props);
+    this.#livingCellsUpdated = this.getOrSetAttatchedEventSocket(
+      LivingCellsUpdated,
+      props
+    );
   }
 
   isAddLivingCellsPayload(data: unknown): data is Type.AddLivingCellsPayload {
@@ -86,7 +92,9 @@ export class AddLivingCells extends BaseSocketEvent<
       return;
     }
 
-    addLivingCell(payload.roomName, payload.playerId, payload.position);
+    if (addLivingCell(payload.roomName, payload.playerId, payload.position)) {
+      this.#livingCellsUpdated.updateLivingCell();
+    }
   }
 
   promisifyEvent(): Promise<Type.AddLivingCellsPayload> {

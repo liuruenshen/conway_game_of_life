@@ -8,6 +8,7 @@ import { removeLivingCell } from '../modules/room';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
+import { LivingCellsUpdated } from './LivingCellsUpdated';
 
 const CLASS_IDENTIFIER = Symbol('RemoveLivingCells');
 
@@ -17,6 +18,7 @@ export class RemoveLivingCells extends BaseSocketEvent<
 > {
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
+  #livingCellsUpdated: LivingCellsUpdated;
 
   constructor(
     props: Omit<BaseSocketEventProps<'remove-living-cells'>, 'eventName'>
@@ -31,6 +33,10 @@ export class RemoveLivingCells extends BaseSocketEvent<
       props
     );
     this.#roomJoined = this.getOrSetAttatchedEventSocket(RoomJoined, props);
+    this.#livingCellsUpdated = this.getOrSetAttatchedEventSocket(
+      LivingCellsUpdated,
+      props
+    );
   }
 
   isRemoveLivingCellsPayload(
@@ -88,7 +94,9 @@ export class RemoveLivingCells extends BaseSocketEvent<
       return;
     }
 
-    removeLivingCell(payload.roomName, payload.position);
+    if (removeLivingCell(payload.roomName, payload.position)) {
+      this.#livingCellsUpdated.updateLivingCell();
+    }
   }
 
   promisifyEvent(): Promise<Type.RemoveLivingCellsPayload> {

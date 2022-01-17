@@ -167,12 +167,12 @@ export function addLivingCell(
 ) {
   const room = getRoom(roomName);
   if (!room) {
-    return;
+    return false;
   }
 
   const player = room.players[playerId];
   if (!player) {
-    return;
+    return false;
   }
 
   if (isRunningSimulation(roomName)) {
@@ -187,12 +187,14 @@ export function addLivingCell(
   }));
 
   room.gameOfLife.addLivingCells(cells);
+
+  return true;
 }
 
 export function removeLivingCell(roomName: string, positions: Type.Position[]) {
   const room = getRoom(roomName);
   if (!room) {
-    return;
+    return false;
   }
 
   if (isRunningSimulation(roomName)) {
@@ -200,6 +202,16 @@ export function removeLivingCell(roomName: string, positions: Type.Position[]) {
   }
 
   room.gameOfLife.removeLivingCells(positions);
+  return true;
+}
+
+export function getLivingCells(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return false;
+  }
+
+  return room.gameOfLife.currentLivingCells;
 }
 
 export function* runSimulation(roomName: string) {

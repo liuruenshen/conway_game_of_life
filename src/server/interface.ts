@@ -120,3 +120,8 @@ export interface AddLivingCellsPayload {
 }
 
 export type RemoveLivingCellsPayload = AddLivingCellsPayload;
+
+export interface LivingCellsUpdatedPayload {
+  roomName: string;
+  cells: Omit<Cell, 'neighbors'>[];
+}
