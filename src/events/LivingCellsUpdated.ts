@@ -3,7 +3,7 @@ import * as Type from '../server/interface';
 
 import { InvalidPayload } from './InvalidPayload';
 
-import { pEvent } from '../utilities/pEvent';
+import { pEvent, pileUpPromisesInitator } from '../utilities/pEvent';
 import {
   getLivingCells,
   findRoomByUserId,
@@ -18,6 +18,7 @@ export class LivingCellsUpdated extends BaseSocketEvent<
   Type.LivingCellsUpdatedPayload
 > {
   #invalidPayload: InvalidPayload;
+  #pileUpPromise = pileUpPromisesInitator<Type.LivingCellsUpdatedPayload>();
 
   constructor(
     props: Omit<BaseSocketEventProps<'living-cells-updated'>, 'eventName'>
@@ -79,19 +80,20 @@ export class LivingCellsUpdated extends BaseSocketEvent<
   }
 
   serverEmitEvent(payload: Type.LivingCellsUpdatedPayload): void {
-    if (this.serverSocket) {
-      this.serverSocket.emit(this.eventName, payload);
+    if (this.server) {
+      this.server.in(payload.roomName).emit(this.eventName, payload);
     }
   }
 
   clientEventHandler(payload: Type.LivingCellsUpdatedPayload): void {
     this.data = payload;
+    this.#pileUpPromise.pileUp(payload);
   }
 
   serverEventHandler(): void {}
 
   promisifyEvent(): Promise<Type.LivingCellsUpdatedPayload> {
-    return pEvent<Type.LivingCellsUpdatedPayload>(this.socket, this.eventName, {
+    return this.#pileUpPromise.fetch(this.socket, this.eventName, {
       rejectEvents: [this.#invalidPayload.eventName],
     });
   }

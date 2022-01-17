@@ -1,6 +1,6 @@
 import * as Type from '../interface';
 import { AddLivingCells } from '../../events/AddLivingCells';
-import { RemoveLivingCells } from '../../events/RemoveLivingCell';
+import { RemoveLivingCells } from '../../events/RemoveLivingCells';
 import { RequestSimulation } from '../../events/RequestSimulation';
 
 const playerOperations: Type.SocketEventHandlers = (server, socket) => {

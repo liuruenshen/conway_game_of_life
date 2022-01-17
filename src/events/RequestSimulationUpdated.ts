@@ -33,8 +33,8 @@ export class RequestSimulationUpdated extends BaseSocketEvent<
   clientEmitEvent(): void {}
 
   serverEmitEvent(payload: Type.RequestSimulationUpdatedPayload): void {
-    if (this.serverSocket) {
-      this.serverSocket.emit(this.eventName, payload);
+    if (this.server) {
+      this.server.in(payload.roomName).emit(this.eventName, payload);
     }
   }
 
