@@ -38,6 +38,10 @@ export function pileUpPromisesInitator<T>() {
     promises.push(Promise.resolve(data));
   }
 
+  function bufferLength() {
+    return promises.length;
+  }
+
   function fetch(
     instance: EventEmitter,
     event: string | Promise<T>,
@@ -54,6 +58,7 @@ export function pileUpPromisesInitator<T>() {
   return {
     pileUp: pileUpPromises,
     fetch,
+    bufferLength,
   };
 }
 

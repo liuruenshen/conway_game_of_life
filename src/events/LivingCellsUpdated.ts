@@ -99,6 +99,10 @@ export class LivingCellsUpdated extends BaseSocketEvent<
 
   serverEventHandler(): void {}
 
+  get bufferLength() {
+    return this.#pileUpPromise.bufferLength();
+  }
+
   promisifyEvent(): Promise<Type.LivingCellsUpdatedPayload> {
     return this.#pileUpPromise.fetch(this.socket, this.eventName, {
       rejectEvents: [this.#invalidPayload.eventName],

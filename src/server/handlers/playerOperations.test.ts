@@ -10,6 +10,8 @@ import { CreateRoom } from '../../events/CreateRoom';
 import { LivingCellsUpdated } from '../../events/LivingCellsUpdated';
 import { JoinRoom } from '../../events/JoinRoom';
 import { RoomJoined } from '../../events/RoomJoined';
+import { sleep } from '../../utilities/sleep';
+import { isPromisePending } from '../../utilities/isPromisePending';
 
 describe('Test player operations', () => {
   const sockets: IOClientSocket[] = [];
@@ -388,6 +390,55 @@ describe('Test player operations', () => {
     }
 
     await Promise.all(promisesList);
+  });
+
+  it('should stop receving living-cell-updated event', async () => {
+    expect.assertions(4);
+
+    (
+      sockets[1][RequestSimulation.classIdentifier] as RequestSimulation
+    ).clientEmitEvent(false);
+
+    const RequestSimulationUpdatedList = sockets.map(
+      (socket) =>
+        socket[
+          RequestSimulationUpdated.classIdentifier
+        ] as RequestSimulationUpdated
+    );
+
+    await Promise.all(
+      RequestSimulationUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          playerId: sockets[1].id,
+          requestSimulation: false,
+        });
+      })
+    );
+
+    const LivingCellsUpdatedList = sockets.map(
+      (socket) =>
+        socket[LivingCellsUpdated.classIdentifier] as LivingCellsUpdated
+    );
+
+    for (let i = 0; i < LivingCellsUpdatedList[0].bufferLength; ++i) {
+      await LivingCellsUpdatedList[0].promisifyEvent();
+    }
+
+    for (let i = 0; i < LivingCellsUpdatedList[1].bufferLength; ++i) {
+      await LivingCellsUpdatedList[1].promisifyEvent();
+    }
+
+    await Promise.all(
+      LivingCellsUpdatedList.map(async (instance) => {
+        const promise = instance.promisifyEvent();
+        await sleep(1000);
+
+        expect(await isPromisePending(promise)).toBe(true);
+      })
+    );
   });
 
   afterAll(() => {
