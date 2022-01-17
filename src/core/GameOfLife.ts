@@ -1,5 +1,5 @@
 import * as Type from './GameOfLife.interface';
-import * as CommonType from '../server/interface';
+import * as CommonType from '../interface';
 
 export const DEFAULT_DIMENSION: CommonType.Dimension = {
   upperLeft: { x: 0, y: 0 },
@@ -8,19 +8,13 @@ export const DEFAULT_DIMENSION: CommonType.Dimension = {
 
 export class GameOfLife {
   #currentLivingCells: CommonType.LivingCells = [];
+  #currentLivingCellPositionMap: Record<string, { index: number }> = {};
   #mutatedLivingCells: Type.MutatedLivingCells = [];
-  #changedCells: Type.ChangedCells = [];
 
   #dimension: CommonType.Dimension = { ...DEFAULT_DIMENSION };
 
   constructor(livingCells: CommonType.LivingCells) {
-    this.#currentLivingCells = livingCells.filter(
-      (cell) =>
-        cell.position.x >= this.#dimension.upperLeft.x &&
-        cell.position.x <= this.#dimension.bottomRight.x &&
-        cell.position.y >= this.#dimension.upperLeft.x &&
-        cell.position.y <= this.#dimension.bottomRight.x
-    );
+    this.addLivingCells(livingCells);
   }
 
   private getEnvolvingCells(): Type.EnvolvingCells {
@@ -145,30 +139,11 @@ export class GameOfLife {
     const envolvingCellsMap = this.getEnvolvingCellMap();
     const newBottomRight: CommonType.Position = { x: 0, y: 0 };
 
-    this.#changedCells = [];
     this.#mutatedLivingCells = [];
 
     Object.entries(envolvingCellsMap).forEach(([key, cell]) => {
       if (cell.isLiving) {
-        if (cell.neighbors.length < 2) {
-          const deadCell: CommonType.Cell = {
-            ...cell,
-            isLiving: false,
-            neighbors: [],
-            appearance: { hue: 0, saturation: 0, light: 0 },
-          };
-
-          this.#changedCells.push(deadCell);
-        } else if (cell.neighbors.length > 3) {
-          const deadCell: CommonType.Cell = {
-            ...cell,
-            isLiving: false,
-            neighbors: [],
-            appearance: { hue: 0, saturation: 0, light: 0 },
-          };
-
-          this.#changedCells.push(deadCell);
-        } else {
+        if (cell.neighbors.length === 2 || cell.neighbors.length === 3) {
           const livingCell: CommonType.Cell<true> = {
             ...cell,
             neighbors: [],
@@ -186,7 +161,6 @@ export class GameOfLife {
             appearance: this.getAppearance(cell.neighbors),
           };
 
-          this.#changedCells.push(newCell);
           this.#mutatedLivingCells.push(newCell);
 
           if (cell.position.x > newBottomRight.x) {
@@ -220,10 +194,7 @@ export class GameOfLife {
   public runEnvolution() {
     this.calculateEnvolvedResult();
     this.#currentLivingCells = this.#mutatedLivingCells;
-  }
-
-  public get changedCells() {
-    return this.#changedCells;
+    this.setCurrentLivingCellPositionMap();
   }
 
   public get currentLivingCells() {
@@ -232,5 +203,59 @@ export class GameOfLife {
 
   public get bottomRightBoundary() {
     return { ...this.#dimension.bottomRight };
+  }
+
+  protected setCurrentLivingCellPositionMap() {
+    this.#currentLivingCellPositionMap = this.#currentLivingCells.reduce(
+      (result, cell, index) => ({
+        ...result,
+        [GameOfLife.getPositionKey(cell.position)]: { index },
+      }),
+      {} as Record<string, { index: number }>
+    );
+  }
+
+  public addLivingCells(livingCells: CommonType.LivingCells) {
+    const currentLivingCellsMap = this.#currentLivingCellPositionMap;
+
+    const validatedLivingCells = livingCells.filter(
+      (cell) =>
+        cell.position.x >= this.#dimension.upperLeft.x &&
+        cell.position.x <= this.#dimension.bottomRight.x &&
+        cell.position.y >= this.#dimension.upperLeft.y &&
+        cell.position.y <= this.#dimension.bottomRight.y &&
+        cell.isLiving
+    );
+
+    validatedLivingCells.forEach((cell) => {
+      const positionKey = GameOfLife.getPositionKey(cell.position);
+      const cellIndex = currentLivingCellsMap[positionKey];
+
+      if (cellIndex) {
+        this.#currentLivingCells[cellIndex.index] = cell;
+      } else {
+        const cellIndex = this.#currentLivingCells.push(cell) - 1;
+        this.#currentLivingCellPositionMap[positionKey] = { index: cellIndex };
+      }
+    });
+  }
+
+  public removeLivingCells(positions: CommonType.Position[]) {
+    const updatingLivingCells: (CommonType.Cell<true> | null)[] =
+      this.#currentLivingCells;
+
+    positions.forEach((position) => {
+      const positionKey = GameOfLife.getPositionKey(position);
+      const cellIndex = this.#currentLivingCellPositionMap[positionKey];
+
+      if (cellIndex) {
+        updatingLivingCells[cellIndex.index] = null;
+      }
+    });
+
+    this.#currentLivingCells = this.#currentLivingCells.filter(
+      (cell) => !!cell
+    );
+    this.setCurrentLivingCellPositionMap();
   }
 }

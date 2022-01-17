@@ -1,13 +1,13 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, Hsl } from '../interface';
+import { IOClientSocket, Hsl } from '../../interface';
 import { pEvent, PEventRejectError } from '../../utilities/pEvent';
-import { CreateRoom } from '../events/CreateRoom';
-import { RoomJoined } from '../events/RoomJoined';
-import { RoomLeaved } from '../events/RoomLeaved';
-import { LeaveRoom } from '../events/LeaveRoom';
-import { SetupClientEnv } from '../events/SetupClientEnv';
-import { JoinRoom } from '../events/JoinRoom';
+import { CreateRoom } from '../../events/CreateRoom';
+import { RoomJoined } from '../../events/RoomJoined';
+import { RoomLeaved } from '../../events/RoomLeaved';
+import { LeaveRoom } from '../../events/LeaveRoom';
+import { SetupClientEnv } from '../../events/SetupClientEnv';
+import { JoinRoom } from '../../events/JoinRoom';
 import { sleep } from '../../utilities/sleep';
 import { isPromisePending } from '../../utilities/isPromisePending';
 

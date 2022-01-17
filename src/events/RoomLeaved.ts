@@ -1,17 +1,13 @@
 import isString from 'lodash/isString';
 
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { isPlainObject } from '../../utilities/EnhancedLodash';
+import { isPlainObject } from '../utilities/EnhancedLodash';
 import * as Type from '../interface';
-import {
-  removePlayer,
-  removeGuest,
-  findRoomByUserId,
-} from '../../modules/room';
+import { removePlayer, removeGuest, findRoomByUserId } from '../modules/room';
 
 import { RoomJoined } from './RoomJoined';
 import { InvalidPayload } from './InvalidPayload';
-import { pEvent } from '../../utilities/pEvent';
+import { pEvent } from '../utilities/pEvent';
 
 const CLASS_IDENTIFIER = Symbol('RoomLeaved');
 

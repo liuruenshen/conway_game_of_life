@@ -1,9 +1,9 @@
 import isString from 'lodash/isString';
 
-import { isPlainObject } from '../../utilities/EnhancedLodash';
+import { isPlainObject } from '../utilities/EnhancedLodash';
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import * as Type from '../interface';
-import { addRoom } from '../../modules/room';
+import { addRoom } from '../modules/room';
 
 import { InvalidPayload } from './InvalidPayload';
 import { JoinRoom } from './JoinRoom';

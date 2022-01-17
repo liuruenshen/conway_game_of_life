@@ -25,6 +25,43 @@ export class PEventRejectError extends Error {
   }
 }
 
+export function pileUpPromisesInitator<T>() {
+  const promises: Promise<T>[] = [];
+  let fetchAheadTimes = 0;
+
+  function pileUpPromises(data: T) {
+    if (fetchAheadTimes) {
+      --fetchAheadTimes;
+      return;
+    }
+
+    promises.push(Promise.resolve(data));
+  }
+
+  function bufferLength() {
+    return promises.length;
+  }
+
+  function fetch(
+    instance: EventEmitter,
+    event: string | Promise<T>,
+    options: PEventOptions = {}
+  ) {
+    const promise = promises.shift();
+    if (!promise) {
+      ++fetchAheadTimes;
+      return pEvent<T>(instance, event, options);
+    }
+    return promise;
+  }
+
+  return {
+    pileUp: pileUpPromises,
+    fetch,
+    bufferLength,
+  };
+}
+
 export function pEvent<T>(
   instance: EventEmitter,
   event: string | Promise<T>,

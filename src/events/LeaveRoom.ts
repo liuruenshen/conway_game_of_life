@@ -1,6 +1,7 @@
-import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { isPlainObject } from '../../utilities/EnhancedLodash';
 import isString from 'lodash/isString';
+
+import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
+import { isPlainObject } from '../utilities/EnhancedLodash';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomLeaved } from './RoomLeaved';

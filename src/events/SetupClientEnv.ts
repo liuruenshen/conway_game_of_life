@@ -1,9 +1,9 @@
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { InvalidPayload } from './InvalidPayload';
 import * as Type from '../interface';
-import { pEvent } from '../../utilities/pEvent';
+import { pEvent } from '../utilities/pEvent';
 
-import { DEFAULT_DIMENSION } from '../../core/GameOfLife';
+import { DEFAULT_DIMENSION } from '../core/GameOfLife';
 
 const CLASS_IDENTIFIER = Symbol('SetupClientEnv');
 

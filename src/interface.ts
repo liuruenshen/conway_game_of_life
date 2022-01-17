@@ -2,6 +2,7 @@
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import type { Server, Socket } from 'socket.io';
 import { Socket as ClientSocket } from 'socket.io-client';
+import type { GameOfLife } from './core/GameOfLife';
 
 export type IOServer = Server<
   DefaultEventsMap,
@@ -101,5 +102,28 @@ export interface Room {
   name: string;
   players: Record<string, Player>;
   guests: Record<string, Guest>;
-  livingCells: Record<string, Cell<true>>;
+  gameOfLife: GameOfLife;
+  simulationFrame: number;
+}
+
+export interface RequestSimulationPayload {
+  roomName: string;
+  playerId: string;
+  requestSimulation: boolean;
+}
+
+export type RequestSimulationUpdatedPayload = RequestSimulationPayload;
+
+export interface AddLivingCellsPayload {
+  roomName: string;
+  playerId: string;
+  position: Position[];
+}
+
+export type RemoveLivingCellsPayload = AddLivingCellsPayload;
+
+export interface LivingCellsUpdatedPayload {
+  roomName: string;
+  cells: Omit<Cell, 'neighbors'>[];
+  simulationFrame?: number;
 }

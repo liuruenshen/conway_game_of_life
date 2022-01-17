@@ -1,6 +1,7 @@
-import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import { isPlainObject } from '../../utilities/EnhancedLodash';
 import isString from 'lodash/isString';
+
+import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
+import { isPlainObject } from '../utilities/EnhancedLodash';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
@@ -11,7 +12,7 @@ import {
   addPlayer,
   addGuest,
   isRunningSimulation,
-} from '../../modules/room';
+} from '../modules/room';
 import * as Type from '../interface';
 
 const CLASS_IDENTIFIER = Symbol('JoinRoom');
