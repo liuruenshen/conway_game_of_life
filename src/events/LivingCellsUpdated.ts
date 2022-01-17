@@ -4,7 +4,12 @@ import * as Type from '../server/interface';
 import { InvalidPayload } from './InvalidPayload';
 
 import { pEvent } from '../utilities/pEvent';
-import { getLivingCells, findRoomByUserId } from '../modules/room';
+import {
+  getLivingCells,
+  findRoomByUserId,
+  runSimulation,
+} from '../modules/room';
+import { sleep } from '../utilities/sleep';
 
 const CLASS_IDENTIFIER = Symbol('LivingCellsUpdated');
 
@@ -29,6 +34,28 @@ export class LivingCellsUpdated extends BaseSocketEvent<
   }
 
   clientEmitEvent(): void {}
+
+  async startRunningSimulation() {
+    if (!this.serverSocket) {
+      return;
+    }
+
+    const roomName = findRoomByUserId(this.serverSocket.id);
+    if (!roomName) {
+      return;
+    }
+
+    const generator = runSimulation(roomName);
+
+    for (const cells of generator) {
+      this.serverEmitEvent({
+        roomName,
+        cells,
+      });
+
+      await sleep(500);
+    }
+  }
 
   updateLivingCell() {
     if (!this.serverSocket) {

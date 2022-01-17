@@ -12,6 +12,7 @@ import {
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 import { RequestSimulationUpdated } from './RequestSimulationUpdated';
+import { LivingCellsUpdated } from './LivingCellsUpdated';
 
 const CLASS_IDENTIFIER = Symbol('RequestSimulation');
 
@@ -22,6 +23,7 @@ export class RequestSimulation extends BaseSocketEvent<
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
   #requestSimulationUpdated: RequestSimulationUpdated;
+  #livingCellsUpdated: LivingCellsUpdated;
 
   constructor(
     props: Omit<BaseSocketEventProps<'request-simulation'>, 'eventName'>
@@ -38,6 +40,10 @@ export class RequestSimulation extends BaseSocketEvent<
     this.#roomJoined = this.getOrSetAttatchedEventSocket(RoomJoined, props);
     this.#requestSimulationUpdated = this.getOrSetAttatchedEventSocket(
       RequestSimulationUpdated,
+      props
+    );
+    this.#livingCellsUpdated = this.getOrSetAttatchedEventSocket(
+      LivingCellsUpdated,
       props
     );
   }
@@ -94,6 +100,7 @@ export class RequestSimulation extends BaseSocketEvent<
     if (payload.requestSimulation) {
       if (requestRunningSimulation(payload.roomName, payload.playerId)) {
         this.#requestSimulationUpdated.serverEmitEvent(payload);
+        this.#livingCellsUpdated.startRunningSimulation();
       }
     } else {
       if (requestStopSimulation(payload.roomName, payload.playerId)) {
