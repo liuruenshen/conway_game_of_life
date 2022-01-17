@@ -241,23 +241,21 @@ export class GameOfLife {
   }
 
   public removeLivingCells(positions: CommonType.Position[]) {
-    const currentLivingCellsMap = this.#currentLivingCellPositionMap;
-
     const updatingLivingCells: (CommonType.Cell<true> | null)[] =
       this.#currentLivingCells;
 
     positions.forEach((position) => {
       const positionKey = GameOfLife.getPositionKey(position);
-      const cellIndex = currentLivingCellsMap[positionKey];
+      const cellIndex = this.#currentLivingCellPositionMap[positionKey];
 
       if (cellIndex) {
         updatingLivingCells[cellIndex.index] = null;
-        delete this.#currentLivingCellPositionMap[positionKey];
       }
     });
 
     this.#currentLivingCells = this.#currentLivingCells.filter(
       (cell) => !!cell
     );
+    this.setCurrentLivingCellPositionMap();
   }
 }

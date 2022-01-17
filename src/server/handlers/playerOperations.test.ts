@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, Hsl, RoomJoinedPayload, Player } from '../interface';
-import { pEvent, PEventRejectError } from '../../utilities/pEvent';
+import { IOClientSocket, RoomJoinedPayload, Player } from '../interface';
+import { pEvent } from '../../utilities/pEvent';
 import { AddLivingCells } from '../../events/AddLivingCells';
 import { RemoveLivingCells } from '../../events/RemoveLivingCells';
 import { RequestSimulation } from '../../events/RequestSimulation';
@@ -176,6 +176,123 @@ describe('Test player operations', () => {
             },
             {
               position: { x: 10, y: 14 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+          ],
+        });
+      })
+    );
+  });
+
+  it('should remove and receiving current living cells', async () => {
+    expect.assertions(4);
+
+    (
+      sockets[0][RemoveLivingCells.classIdentifier] as RemoveLivingCells
+    ).clientEmitEvent([
+      { x: 10, y: 10 },
+      { x: 14, y: 14 },
+    ]);
+
+    (
+      sockets[1][RemoveLivingCells.classIdentifier] as RemoveLivingCells
+    ).clientEmitEvent([
+      { x: 14, y: 10 },
+      { x: 10, y: 14 },
+    ]);
+
+    const LivingCellsUpdatedList = sockets.map(
+      (socket) =>
+        socket[LivingCellsUpdated.classIdentifier] as LivingCellsUpdated
+    );
+
+    const roomJoinedData = sockets.map(
+      (socket) => (socket[RoomJoined.classIdentifier] as RoomJoined).data
+    );
+
+    await Promise.all(
+      LivingCellsUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+        const appearances = roomJoinedData.map(
+          (item) => (item?.newUser as Player)?.appearance
+        );
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          cells: [
+            {
+              position: { x: 11, y: 11 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 12, y: 12 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 13, y: 13 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 14, y: 10 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+            {
+              position: { x: 13, y: 11 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+            {
+              position: { x: 11, y: 13 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+            {
+              position: { x: 10, y: 14 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+          ],
+        });
+      })
+    );
+
+    await Promise.all(
+      LivingCellsUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+        const appearances = roomJoinedData.map(
+          (item) => (item?.newUser as Player)?.appearance
+        );
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          cells: [
+            {
+              position: { x: 11, y: 11 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 12, y: 12 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 13, y: 13 },
+              isLiving: true,
+              appearance: appearances[0],
+            },
+            {
+              position: { x: 13, y: 11 },
+              isLiving: true,
+              appearance: appearances[1],
+            },
+            {
+              position: { x: 11, y: 13 },
               isLiving: true,
               appearance: appearances[1],
             },
