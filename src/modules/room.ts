@@ -9,7 +9,7 @@ export function addRoom(roomName: string) {
       name: roomName,
       players: {},
       guests: {},
-      livingCells: {},
+      gameOfLife: new GameOfLife([]),
     };
 
     return true;
@@ -113,28 +113,6 @@ export function getRoom(roomName: string): Type.Room | undefined {
   return roomMap[roomName];
 }
 
-export function removingLivingCell(roomName: string, oldCell: Type.Cell) {
-  const room = getRoom(roomName);
-  if (!room) {
-    return;
-  }
-
-  delete room.livingCells[GameOfLife.getPositionKey(oldCell.position)];
-}
-
-export function addLivingCell(roomName: string, newCell: Type.Cell) {
-  const addingCell: Type.Cell<true> = { ...newCell, isLiving: true };
-
-  const room = getRoom(roomName);
-  if (!room) {
-    return;
-  }
-
-  removingLivingCell(roomName, addingCell);
-
-  room.livingCells[GameOfLife.getPositionKey(addingCell.position)] = addingCell;
-}
-
 export function isRunningSimulation(roomName: string) {
   const room = getRoom(roomName);
   if (!room) {
@@ -180,4 +158,89 @@ export function findRoomByUserId(userId: string) {
   }
 
   return false;
+}
+
+export function addLivingCell(
+  roomName: string,
+  playerId: string,
+  positions: Type.Position[]
+) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
+  }
+
+  const player = room.players[playerId];
+  if (!player) {
+    return;
+  }
+
+  if (isRunningSimulation(roomName)) {
+    return false;
+  }
+
+  const cells = positions.map<Type.Cell<true>>((position) => ({
+    position,
+    isLiving: true,
+    appearance: player.appearance,
+    neighbors: [],
+  }));
+
+  room.gameOfLife.addLivingCells(cells);
+}
+
+export function removeLivingCell(roomName: string, positions: Type.Position[]) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
+  }
+
+  if (isRunningSimulation(roomName)) {
+    return false;
+  }
+
+  room.gameOfLife.removeLivingCells(positions);
+}
+
+export function* runSimulation(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return;
+  }
+
+  while (isRunningSimulation(roomName)) {
+    room.gameOfLife.runEnvolution();
+    yield room.gameOfLife.currentLivingCells;
+  }
+}
+
+export function requestRunningSimulation(roomName: string, playerId: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return false;
+  }
+
+  const player = room.players[playerId];
+  if (!player) {
+    return false;
+  }
+
+  player.requestStartSimulation = true;
+
+  return true;
+}
+
+export function requestStopSimulation(roomName: string, playerId: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return false;
+  }
+
+  const player = room.players[playerId];
+  if (!player) {
+    return false;
+  }
+
+  player.requestStartSimulation = false;
+  return true;
 }
