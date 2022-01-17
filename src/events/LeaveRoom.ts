@@ -7,7 +7,7 @@ import { InvalidPayload } from './InvalidPayload';
 import { RoomLeaved } from './RoomLeaved';
 import { RoomJoined } from './RoomJoined';
 
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 
 const CLASS_IDENTIFIER = Symbol('LeaveRoom');
 

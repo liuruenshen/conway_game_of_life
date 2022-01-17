@@ -3,7 +3,7 @@ import isString from 'lodash/isString';
 import { isPlainObject } from '../utilities/EnhancedLodash';
 import { isPosition } from '../validator/isPosition';
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import { addLivingCell } from '../modules/room';
 
 import { InvalidPayload } from './InvalidPayload';

@@ -1,5 +1,5 @@
 import * as Type from './GameOfLife.interface';
-import * as CommonType from '../server/interface';
+import * as CommonType from '../interface';
 
 export const DEFAULT_DIMENSION: CommonType.Dimension = {
   upperLeft: { x: 0, y: 0 },

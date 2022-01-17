@@ -2,7 +2,7 @@ import isString from 'lodash/isString';
 
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { isPlainObject } from '../utilities/EnhancedLodash';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import { getGuests, getPlayers } from '../modules/room';
 import { getFlattenPromise } from '../utilities/getFlattenPromise';
 import { isPromisePending } from '../utilities/isPromisePending';

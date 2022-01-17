@@ -1,4 +1,4 @@
-import { Cell } from '../server/interface';
+import { Cell } from '../interface';
 
 export type EnvolvingCells = Cell[];
 

@@ -3,7 +3,7 @@ import isBoolean from 'lodash/isBoolean';
 
 import { isPlainObject } from '../utilities/EnhancedLodash';
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import {
   requestRunningSimulation,
   requestStopSimulation,

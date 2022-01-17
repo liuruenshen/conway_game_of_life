@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, Hsl } from '../interface';
+import { IOClientSocket, Hsl } from '../../interface';
 import { pEvent, PEventRejectError } from '../../utilities/pEvent';
 import { CreateRoom } from '../../events/CreateRoom';
 import { RoomJoined } from '../../events/RoomJoined';

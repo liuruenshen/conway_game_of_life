@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, RoomJoinedPayload, Player } from '../interface';
+import { IOClientSocket, RoomJoinedPayload, Player } from '../../interface';
 import { pEvent } from '../../utilities/pEvent';
 import { AddLivingCells } from '../../events/AddLivingCells';
 import { RemoveLivingCells } from '../../events/RemoveLivingCells';

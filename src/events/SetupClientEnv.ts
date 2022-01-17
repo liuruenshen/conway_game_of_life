@@ -1,6 +1,6 @@
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { InvalidPayload } from './InvalidPayload';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import { pEvent } from '../utilities/pEvent';
 
 import { DEFAULT_DIMENSION } from '../core/GameOfLife';

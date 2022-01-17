@@ -1,4 +1,4 @@
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import { GameOfLife } from '../core/GameOfLife';
 
 const roomMap: Record<string, Type.Room> = {};

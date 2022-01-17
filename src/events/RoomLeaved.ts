@@ -2,7 +2,7 @@ import isString from 'lodash/isString';
 
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { isPlainObject } from '../utilities/EnhancedLodash';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 import { removePlayer, removeGuest, findRoomByUserId } from '../modules/room';
 
 import { RoomJoined } from './RoomJoined';

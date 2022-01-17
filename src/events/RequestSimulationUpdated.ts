@@ -1,5 +1,5 @@
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';

@@ -2,7 +2,7 @@
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import type { Server, Socket } from 'socket.io';
 import { Socket as ClientSocket } from 'socket.io-client';
-import type { GameOfLife } from '../core/GameOfLife';
+import type { GameOfLife } from './core/GameOfLife';
 
 export type IOServer = Server<
   DefaultEventsMap,

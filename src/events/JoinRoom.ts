@@ -13,7 +13,7 @@ import {
   addGuest,
   isRunningSimulation,
 } from '../modules/room';
-import * as Type from '../server/interface';
+import * as Type from '../interface';
 
 const CLASS_IDENTIFIER = Symbol('JoinRoom');
 
