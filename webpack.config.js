@@ -10,7 +10,7 @@ const rootPath = __dirname;
 module.exports = function (env, argv) {
   return {
     devtool: 'inline-source-map',
-    entry: './src/index.tsx',
+    entry: './src/client/index.tsx',
     output: {
       path: path.resolve(rootPath, 'dist'),
       filename: '[name].js',
