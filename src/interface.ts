@@ -127,3 +127,7 @@ export interface LivingCellsUpdatedPayload {
   cells: Omit<Cell, 'neighbors'>[];
   simulationFrame?: number;
 }
+
+export interface RoomNamesUpdatedPayload {
+  roomNames: string[];
+}

@@ -4,6 +4,8 @@ import * as Type from '../../interface';
 import { AddLivingCells } from '../../events/AddLivingCells';
 import { RemoveLivingCells } from '../../events/RemoveLivingCells';
 import { RequestSimulation } from '../../events/RequestSimulation';
+import { GetRoomNames } from '../../events/GetRoomNames';
+import { RoomNamesUpdated } from '../../events/RoomNamesUpdated';
 import { RequestSimulationUpdated } from '../../events/RequestSimulationUpdated';
 import { CreateRoom } from '../../events/CreateRoom';
 import { LivingCellsUpdated } from '../../events/LivingCellsUpdated';
@@ -25,6 +27,8 @@ new RemoveLivingCells({ clientSocket: socket });
 new RequestSimulation({ clientSocket: socket });
 new LivingCellsUpdated({ clientSocket: socket });
 new RequestSimulationUpdated({ clientSocket: socket });
+new GetRoomNames({ clientSocket: socket });
+new RoomNamesUpdated({ clientSocket: socket });
 
 type ConnectFailedCallback = (error: string) => void;
 
@@ -151,6 +155,25 @@ export async function requestSimulationUpdated(
   const instance = socket[
     RequestSimulationUpdated.classIdentifier
   ] as RequestSimulationUpdated;
+
+  while (socket.connected) {
+    callback(await instance.promisifyEvent());
+  }
+}
+
+export async function getRoomNames() {
+  await connectSocket();
+
+  const instance = socket[GetRoomNames.classIdentifier] as GetRoomNames;
+  instance.clientEmitEvent();
+}
+
+export async function roomNamesUpdated(
+  callback: (payload: Type.RoomNamesUpdatedPayload) => void
+) {
+  await connectSocket();
+
+  const instance = socket[RoomNamesUpdated.classIdentifier] as RoomNamesUpdated;
 
   while (socket.connected) {
     callback(await instance.promisifyEvent());

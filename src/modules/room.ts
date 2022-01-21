@@ -102,8 +102,8 @@ export function removeGuest(roomName: string, guestId: Type.Guest['id']) {
   }
 }
 
-export function getRoomList() {
-  return Object.entries(roomMap).map(([key, room]) => room);
+export function getRoomNames() {
+  return Object.entries(roomMap).map(([key, room]) => room.name);
 }
 
 export function hasRoom(roomName: string) {
