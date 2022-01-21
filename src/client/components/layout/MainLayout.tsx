@@ -6,9 +6,9 @@ export function MainLayout({ children }: PropsWithChildren<unknown>) {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         width: '100vw',
         height: '100vh',
         minHeight: '100vh',

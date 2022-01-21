@@ -13,6 +13,8 @@ import { JoinRoom } from '../../events/JoinRoom';
 import { RoomJoined } from '../../events/RoomJoined';
 import { LeaveRoom } from '../../events/LeaveRoom';
 import { RoomLeaved } from '../../events/RoomLeaved';
+import { SetupClientEnv } from '../../events/SetupClientEnv';
+
 import { pEvent } from '../../utilities/pEvent';
 
 import { WS_PORT } from '../../server/constant';
@@ -29,6 +31,7 @@ new LivingCellsUpdated({ clientSocket: socket });
 new RequestSimulationUpdated({ clientSocket: socket });
 new GetRoomNames({ clientSocket: socket });
 new RoomNamesUpdated({ clientSocket: socket });
+new SetupClientEnv({ clientSocket: socket });
 
 type ConnectFailedCallback = (error: string) => void;
 
@@ -174,6 +177,18 @@ export async function roomNamesUpdated(
   await connectSocket();
 
   const instance = socket[RoomNamesUpdated.classIdentifier] as RoomNamesUpdated;
+
+  while (socket.connected) {
+    callback(await instance.promisifyEvent());
+  }
+}
+
+export async function getClientEnv(
+  callback: (payload: Type.SetupClientPayload) => void
+) {
+  await connectSocket();
+
+  const instance = socket[SetupClientEnv.classIdentifier] as SetupClientEnv;
 
   while (socket.connected) {
     callback(await instance.promisifyEvent());
