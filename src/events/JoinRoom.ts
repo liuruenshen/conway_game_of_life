@@ -102,7 +102,7 @@ export class JoinRoom extends BaseSocketEvent<
     });
 
     this.#setupClientEnv.serverEmitEvent();
-    this.#livingCellsUpdated.updateLivingCell();
+    this.#livingCellsUpdated.updateLivingCell(true);
   }
 
   getClassIdentifer() {

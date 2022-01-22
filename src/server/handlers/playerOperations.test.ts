@@ -1,6 +1,11 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, RoomJoinedPayload, Player } from '../../interface';
+import {
+  IOClientSocket,
+  RoomJoinedPayload,
+  Player,
+  LivingCellsUpdatedPayload,
+} from '../../interface';
 import { pEvent } from '../../utilities/pEvent';
 import { AddLivingCells } from '../../events/AddLivingCells';
 import { RemoveLivingCells } from '../../events/RemoveLivingCells';
@@ -27,7 +32,7 @@ describe('Test player operations', () => {
   });
 
   it('should add and receive living cells', async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     sockets.forEach((socket) => {
       new CreateRoom({ clientSocket: socket });
@@ -87,13 +92,22 @@ describe('Test player operations', () => {
     );
 
     await Promise.all(
-      LivingCellsUpdatedList.map(async (instance) => {
-        const data = await instance.promisifyEvent();
+      LivingCellsUpdatedList.map(async (instance, index) => {
+        const dataList: LivingCellsUpdatedPayload[] = [];
+
+        dataList.push(await instance.promisifyEvent());
+        dataList.push(await instance.promisifyEvent());
+
         const appearances = roomJoinedData.map(
           (item) => (item.newUser as Player).appearance
         );
 
-        expect(data).toMatchObject({
+        expect(dataList[0]).toMatchObject({
+          roomName: 'room2',
+          cells: [],
+        });
+
+        expect(dataList[1]).toMatchObject({
           roomName: 'room2',
           cells: [
             {

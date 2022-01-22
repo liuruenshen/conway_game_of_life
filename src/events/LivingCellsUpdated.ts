@@ -65,7 +65,7 @@ export class LivingCellsUpdated extends BaseSocketEvent<
     }
   }
 
-  updateLivingCell() {
+  updateLivingCell(updateItself = false) {
     if (!this.serverSocket) {
       return;
     }
@@ -80,10 +80,16 @@ export class LivingCellsUpdated extends BaseSocketEvent<
       return;
     }
 
-    this.serverEmitEvent({
-      roomName,
-      cells,
-    });
+    if (updateItself) {
+      if (this.serverSocket) {
+        this.serverSocket.emit(this.eventName, { roomName, cells });
+      }
+    } else {
+      this.serverEmitEvent({
+        roomName,
+        cells,
+      });
+    }
   }
 
   serverEmitEvent(payload: Type.LivingCellsUpdatedPayload): void {
