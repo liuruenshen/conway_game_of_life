@@ -32,7 +32,6 @@ export function GameOfLifeScene() {
   const livingCellsUpdatedInfo = useRef<Type.LivingCellsUpdatedPayload | null>(
     null
   );
-  const removingLivingCells = useRef<Type.Position[]>([]);
   const livingCellsPositionMap = useRef<Record<string, boolean>>({});
 
   const [dimension, setDimension] = useState<Dimension>({
@@ -52,7 +51,6 @@ export function GameOfLifeScene() {
       addLivingCells([position]);
     } else {
       removeLivingCells([position]);
-      removingLivingCells.current.push(position);
     }
   };
 
@@ -97,6 +95,13 @@ export function GameOfLifeScene() {
   }
 
   function drawCells(payload: Type.LivingCellsUpdatedPayload) {
+    const { context } = canvasRef.current;
+
+    if (!context) {
+      return;
+    }
+
+    const stallLivingCells = livingCellsUpdatedInfo.current || { cells: [] };
     livingCellsUpdatedInfo.current = payload;
     livingCellsPositionMap.current = payload.cells.reduce(
       (result, item) => ({
@@ -106,10 +111,12 @@ export function GameOfLifeScene() {
       {}
     );
 
-    const { context } = canvasRef.current;
-    if (!context) {
-      return;
-    }
+    const removedCells = stallLivingCells.cells.filter(
+      (cell) =>
+        !livingCellsPositionMap.current[
+          GameOfLife.getPositionKey(cell.position)
+        ]
+    );
 
     const { cells } = payload;
     cells.forEach((cell) => {
@@ -120,12 +127,14 @@ export function GameOfLifeScene() {
     });
 
     context.fillStyle = GRID_BACKGROUND;
-    removingLivingCells.current.forEach((removingCell) => {
+    removedCells.map((removingCell) => {
       if (
-        !livingCellsPositionMap.current[GameOfLife.getPositionKey(removingCell)]
+        !livingCellsPositionMap.current[
+          GameOfLife.getPositionKey(removingCell.position)
+        ]
       ) {
-        const cellOffsetX = removingCell.x * (CELL_WIDTH + 1);
-        const cellOffsetY = removingCell.y * (CELL_HEIGHT + 1);
+        const cellOffsetX = removingCell.position.x * (CELL_WIDTH + 1);
+        const cellOffsetY = removingCell.position.y * (CELL_HEIGHT + 1);
         context.fillRect(cellOffsetX, cellOffsetY, CELL_WIDTH, CELL_HEIGHT);
       }
     });

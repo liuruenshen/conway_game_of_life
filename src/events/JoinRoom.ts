@@ -6,6 +6,7 @@ import { isPlainObject } from '../utilities/EnhancedLodash';
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 import { SetupClientEnv } from './SetupClientEnv';
+import { LivingCellsUpdated } from './LivingCellsUpdated';
 
 import {
   getRoom,
@@ -24,6 +25,7 @@ export class JoinRoom extends BaseSocketEvent<
   #invalidPayload: InvalidPayload;
   #roomJoined: RoomJoined;
   #setupClientEnv: SetupClientEnv;
+  #livingCellsUpdated: LivingCellsUpdated;
 
   constructor(props: Omit<BaseSocketEventProps<'join-room'>, 'eventName'>) {
     super({
@@ -38,6 +40,10 @@ export class JoinRoom extends BaseSocketEvent<
     this.#roomJoined = this.getOrSetAttatchedEventSocket(RoomJoined, props);
     this.#setupClientEnv = this.getOrSetAttatchedEventSocket(
       SetupClientEnv,
+      props
+    );
+    this.#livingCellsUpdated = this.getOrSetAttatchedEventSocket(
+      LivingCellsUpdated,
       props
     );
   }
@@ -96,6 +102,7 @@ export class JoinRoom extends BaseSocketEvent<
     });
 
     this.#setupClientEnv.serverEmitEvent();
+    this.#livingCellsUpdated.updateLivingCell();
   }
 
   getClassIdentifer() {
