@@ -260,3 +260,12 @@ export function requestStopSimulation(roomName: string, playerId: string) {
   player.requestStartSimulation = false;
   return true;
 }
+
+export function getBottomRightBoundary(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return false;
+  }
+
+  return room.gameOfLife.bottomRightBoundary;
+}

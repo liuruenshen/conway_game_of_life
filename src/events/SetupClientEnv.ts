@@ -38,12 +38,20 @@ export class SetupClientEnv extends BaseSocketEvent<
     this.serverSocket?.emit(this.eventName, payload);
   }
 
+  notifyDimensionChanged(roomName: string, payload: Type.SetupClientPayload) {
+    this.server?.in(roomName).emit(this.eventName, payload);
+  }
+
   clientEventHandler(data: Type.SetupClientPayload): void {
     this.data = data;
     this.#pileUpPromise.pileUp(data);
   }
 
   serverEventHandler(): void {}
+
+  get bufferLength() {
+    return this.#pileUpPromise.bufferLength();
+  }
 
   promisifyEvent(): Promise<Type.SetupClientPayload> {
     return this.#pileUpPromise.fetch(this.socket, this.eventName, {

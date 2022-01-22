@@ -11,7 +11,10 @@ export class GameOfLife {
   #currentLivingCellPositionMap: Record<string, { index: number }> = {};
   #mutatedLivingCells: Type.MutatedLivingCells = [];
 
-  #dimension: CommonType.Dimension = { ...DEFAULT_DIMENSION };
+  #dimension: CommonType.Dimension = {
+    upperLeft: { ...DEFAULT_DIMENSION.upperLeft },
+    bottomRight: { ...DEFAULT_DIMENSION.bottomRight },
+  };
 
   constructor(livingCells: CommonType.LivingCells) {
     this.addLivingCells(livingCells);
