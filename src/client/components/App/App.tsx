@@ -4,6 +4,7 @@ import AppTheme from '../../theme/theme';
 import { MainLayout } from '../layout/MainLayout';
 import { Scene } from '../layout/Scene';
 import { GameOfLifeScene } from '../GameOfLifeScene/GameOfLifeScene';
+import { ControlPanel } from '../ControlPanel/ControlPanel';
 
 import { CreateOrSelectRoom } from '../CreateOrSelectRoom/CreateOrSelectRoom';
 
@@ -17,6 +18,7 @@ render(
         <Scene>
           <GameOfLifeScene />
         </Scene>
+        <ControlPanel />
       </MainLayout>
     </AppTheme>
   </React.StrictMode>,

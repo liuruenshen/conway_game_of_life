@@ -6,7 +6,8 @@ export function Scene({ children }: PropsWithChildren<unknown>) {
     <Box
       sx={{
         width: '100%',
-        height: '80%',
+        flexGrow: 1,
+        height: 0.5,
         backgroundColor: 'background.default',
         overflow: 'auto',
       }}

@@ -191,7 +191,7 @@ export class GameOfLife {
     };
   }
 
-  public runEnvolution() {
+  public runEvolution() {
     this.calculateEnvolvedResult();
     this.#currentLivingCells = this.#mutatedLivingCells;
     this.setCurrentLivingCellPositionMap();

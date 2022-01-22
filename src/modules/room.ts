@@ -224,7 +224,7 @@ export function* runSimulation(roomName: string) {
   }
 
   while (isRunningSimulation(roomName)) {
-    room.gameOfLife.runEnvolution();
+    room.gameOfLife.runEvolution();
     room.simulationFrame++;
     yield room.gameOfLife.currentLivingCells;
   }

@@ -65,10 +65,6 @@ export function CreateOrSelectRoom() {
               value={joiningRoomName}
               onChange={(event) => {
                 setJoiningRoomName(event.target.value as string);
-                console.log(
-                  '🚀 ~ file: CreateOrSelectRoom.tsx ~ line 68 ~ CreateOrSelectRoom ~ setJoiningRoomName',
-                  event.target.value
-                );
               }}
             >
               {roomNames.map((roomName) => (

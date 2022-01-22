@@ -7,7 +7,7 @@ export function MainLayout({ children }: PropsWithChildren<unknown>) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'stretch',
         justifyContent: 'flex-start',
         width: '100vw',
         height: '100vh',

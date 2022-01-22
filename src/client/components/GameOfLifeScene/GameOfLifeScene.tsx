@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, MouseEventHandler } from 'react';
 import {
-  getClientEnv,
+  processClientEnv,
   addLivingCells,
   removeLivingCells,
   livingCellsUpdated,
@@ -8,9 +8,9 @@ import {
 import * as Type from '../../../interface';
 import { GameOfLife } from '../../../core/GameOfLife';
 
-const CELL_WIDTH = 12;
-const CELL_HEIGHT = 12;
-const GRID_BUFFER = 50;
+const CELL_WIDTH = 16;
+const CELL_HEIGHT = 16;
+const GRID_BUFFER = 20;
 const GRID_BACKGROUND = 'hsl(0, 10%, 15%)';
 
 interface Dimension {
@@ -55,18 +55,15 @@ export function GameOfLifeScene() {
   };
 
   function drawGrid(payload: Type.SetupClientPayload) {
-    if (!canvasRef.current.context) {
+    const { context } = canvasRef.current;
+
+    if (!context) {
       return;
     }
 
     const { x, y } = payload.dimension.bottomRight;
     const columns = x + GRID_BUFFER;
     const rows = y + GRID_BUFFER;
-
-    const { context } = canvasRef.current;
-    if (!context) {
-      return;
-    }
 
     const dimension = {
       width: columns * (CELL_WIDTH + 1),
@@ -120,10 +117,15 @@ export function GameOfLifeScene() {
 
     const { cells } = payload;
     cells.forEach((cell) => {
-      const cellOffsetX = cell.position.x * (CELL_WIDTH + 1);
-      const cellOffsetY = cell.position.y * (CELL_HEIGHT + 1);
+      const cellOffsetX = cell.position.x * (CELL_WIDTH + 1) + 1;
+      const cellOffsetY = cell.position.y * (CELL_HEIGHT + 1) + 1;
       context.fillStyle = hslToCssHsl(cell.appearance);
-      context.fillRect(cellOffsetX, cellOffsetY, CELL_WIDTH, CELL_HEIGHT);
+      context.fillRect(
+        cellOffsetX,
+        cellOffsetY,
+        CELL_WIDTH - 1,
+        CELL_HEIGHT - 1
+      );
     });
 
     context.fillStyle = GRID_BACKGROUND;
@@ -133,9 +135,14 @@ export function GameOfLifeScene() {
           GameOfLife.getPositionKey(removingCell.position)
         ]
       ) {
-        const cellOffsetX = removingCell.position.x * (CELL_WIDTH + 1);
-        const cellOffsetY = removingCell.position.y * (CELL_HEIGHT + 1);
-        context.fillRect(cellOffsetX, cellOffsetY, CELL_WIDTH, CELL_HEIGHT);
+        const cellOffsetX = removingCell.position.x * (CELL_WIDTH + 1) + 1;
+        const cellOffsetY = removingCell.position.y * (CELL_HEIGHT + 1) + 1;
+        context.fillRect(
+          cellOffsetX,
+          cellOffsetY,
+          CELL_WIDTH - 1,
+          CELL_HEIGHT - 1
+        );
       }
     });
   }
@@ -145,9 +152,11 @@ export function GameOfLifeScene() {
       'canvas'
     ) as HTMLCanvasElement;
     canvasRef.current.element = canvasElement;
-    canvasRef.current.context = canvasElement.getContext('2d');
+    canvasRef.current.context = canvasElement.getContext('2d', {
+      alpha: false,
+    });
 
-    getClientEnv(drawGrid);
+    processClientEnv(drawGrid);
     livingCellsUpdated(drawCells);
 
     return () => {

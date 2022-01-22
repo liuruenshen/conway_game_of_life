@@ -115,6 +115,12 @@ export async function roomLeaved(callback: () => void) {
   }
 }
 
+export async function getRoomStatus() {
+  await connectSocket();
+  const instance = socket[RoomJoined.classIdentifier] as RoomJoined;
+  return instance.data?.roomStatus;
+}
+
 export async function addLivingCells(positions: Type.Position[]) {
   await connectSocket();
   const instance = socket[AddLivingCells.classIdentifier] as AddLivingCells;
@@ -183,7 +189,7 @@ export async function roomNamesUpdated(
   }
 }
 
-export async function getClientEnv(
+export async function processClientEnv(
   callback: (payload: Type.SetupClientPayload) => void
 ) {
   await connectSocket();
@@ -193,4 +199,12 @@ export async function getClientEnv(
   while (socket.connected) {
     callback(await instance.promisifyEvent());
   }
+}
+
+export async function getClientEnv() {
+  await connectSocket();
+
+  const instance = socket[SetupClientEnv.classIdentifier] as SetupClientEnv;
+
+  return instance.data;
 }

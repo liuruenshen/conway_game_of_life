@@ -1,0 +1,97 @@
+import React, { useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch, { SwitchProps } from '@mui/material/Switch';
+
+import * as Type from '../../../interface';
+
+import {
+  roomJoined,
+  getRoomStatus,
+  requestSimulation,
+} from '../../modules/socketEvents';
+
+export function ControlPanel() {
+  const [roomStatus, setRoomStatus] = useState<
+    Type.RoomJoinedPayload['roomStatus']
+  >({ players: [], guests: [] });
+
+  useEffect(() => {
+    roomJoined(async (payload) => {
+      if (!payload.roomStatus) {
+        const roomStatus = await getRoomStatus();
+        if (roomStatus) {
+          setRoomStatus({ ...roomStatus });
+        }
+        return;
+      }
+      setRoomStatus(payload.roomStatus);
+    });
+  }, []);
+
+  const onChangeStartSimulation: SwitchProps['onChange'] = (event) => {
+    requestSimulation(event.target.checked);
+  };
+
+  return (
+    <Box
+      sx={{
+        width: 1,
+        height: 200,
+        flexGrow: 0,
+        backgroundColor: 'background.paper',
+        p: 3,
+        boxSizing: 'border-box',
+      }}
+    >
+      <Stack direction="row" sx={{ width: 1, height: 1 }} spacing={2}>
+        <Paper
+          sx={(theme) => ({
+            height: 1,
+            width: 250,
+            boxSizing: 'border-box',
+            borderRadius: 2,
+            backgroundColor: theme.extendBackground.light,
+            padding: 1,
+          })}
+        >
+          <List
+            sx={{
+              height: 1,
+              width: 1,
+              overflowX: 'hidden',
+              overflowY: 'auto',
+              boxSizing: 'border-box',
+            }}
+          >
+            {roomStatus?.players.map((item) => (
+              <ListItem key={item.id}>{`${item.id.slice(0, 8)}...`}</ListItem>
+            ))}
+          </List>
+        </Paper>
+        <Paper
+          sx={(theme) => ({
+            height: 1,
+            width: 250,
+            boxSizing: 'border-box',
+            borderRadius: 2,
+            backgroundColor: theme.extendBackground.light,
+            padding: 2,
+          })}
+        >
+          <FormGroup>
+            <FormControlLabel
+              control={<Switch onChange={onChangeStartSimulation} />}
+              label="Start simulation"
+            ></FormControlLabel>
+          </FormGroup>
+        </Paper>
+      </Stack>
+    </Box>
+  );
+}
