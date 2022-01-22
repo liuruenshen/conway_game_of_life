@@ -6,6 +6,7 @@ import * as Type from '../interface';
 import { getGuests, getPlayers } from '../modules/room';
 import { getFlattenPromise } from '../utilities/getFlattenPromise';
 import { isPromisePending } from '../utilities/isPromisePending';
+import { isPlayer } from '../validator/isPlayer';
 
 import { InvalidPayload } from './InvalidPayload';
 import { pEvent } from '../utilities/pEvent';
@@ -37,13 +38,6 @@ export class RoomJoined extends BaseSocketEvent<
   }
 
   clientEmitEvent(): void {}
-
-  isPlayer(data: unknown): data is Type.Player {
-    return (
-      isPlainObject<Type.Player>(data) &&
-      isPlainObject<Type.Hsl>(data.appearance)
-    );
-  }
 
   serverEmitEvent(payload: Type.RoomJoinedPayload) {
     const newUser: Type.RoomJoinedPayload = { ...payload, roomStatus: null };
@@ -85,7 +79,7 @@ export class RoomJoined extends BaseSocketEvent<
 
         if (user.id === this.socket.id) {
           this.data!.newUser = user;
-        } else if (this.isPlayer(user)) {
+        } else if (isPlayer(user)) {
           this.data!.roomStatus!.players.push(user);
         } else {
           this.data!.roomStatus!.guests.push(user);

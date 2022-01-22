@@ -5,6 +5,7 @@ import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 
 import { pileUpPromisesInitator } from '../utilities/pEvent';
+import { isPlayer } from '../validator/isPlayer';
 
 const CLASS_IDENTIFIER = Symbol('RequestSimulationUpdated');
 
@@ -50,7 +51,7 @@ export class RequestSimulationUpdated extends BaseSocketEvent<
       return;
     }
 
-    if (this.#roomJoined.isPlayer(newUser) && newUser.id === payload.playerId) {
+    if (isPlayer(newUser) && newUser.id === payload.playerId) {
       newUser.requestStartSimulation = payload.requestSimulation;
     }
 

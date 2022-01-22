@@ -13,6 +13,7 @@ import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 import { RequestSimulationUpdated } from './RequestSimulationUpdated';
 import { LivingCellsUpdated } from './LivingCellsUpdated';
+import { isPlayer } from '../validator/isPlayer';
 
 const CLASS_IDENTIFIER = Symbol('RequestSimulation');
 
@@ -69,7 +70,7 @@ export class RequestSimulation extends BaseSocketEvent<
     const userInfo = this.#roomJoined.data?.newUser;
     const roomName = this.#roomJoined.data?.roomName;
 
-    if (!userInfo || !this.#roomJoined.isPlayer(userInfo) || !roomName) {
+    if (!userInfo || !isPlayer(userInfo) || !roomName) {
       return;
     }
 
