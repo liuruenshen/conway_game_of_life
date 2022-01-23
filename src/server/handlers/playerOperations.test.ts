@@ -1,6 +1,11 @@
 import { io } from 'socket.io-client';
 import { TESTING_WS_PORT } from '../constant';
-import { IOClientSocket, RoomJoinedPayload, Player } from '../../interface';
+import {
+  IOClientSocket,
+  RoomJoinedPayload,
+  Player,
+  LivingCellsUpdatedPayload,
+} from '../../interface';
 import { pEvent } from '../../utilities/pEvent';
 import { AddLivingCells } from '../../events/AddLivingCells';
 import { RemoveLivingCells } from '../../events/RemoveLivingCells';
@@ -8,6 +13,7 @@ import { RequestSimulation } from '../../events/RequestSimulation';
 import { RequestSimulationUpdated } from '../../events/RequestSimulationUpdated';
 import { CreateRoom } from '../../events/CreateRoom';
 import { LivingCellsUpdated } from '../../events/LivingCellsUpdated';
+import { SetupClientEnv } from '../../events/SetupClientEnv';
 import { JoinRoom } from '../../events/JoinRoom';
 import { RoomJoined } from '../../events/RoomJoined';
 import { sleep } from '../../utilities/sleep';
@@ -27,7 +33,7 @@ describe('Test player operations', () => {
   });
 
   it('should add and receive living cells', async () => {
-    expect.assertions(4);
+    expect.assertions(6);
 
     sockets.forEach((socket) => {
       new CreateRoom({ clientSocket: socket });
@@ -87,13 +93,22 @@ describe('Test player operations', () => {
     );
 
     await Promise.all(
-      LivingCellsUpdatedList.map(async (instance) => {
-        const data = await instance.promisifyEvent();
+      LivingCellsUpdatedList.map(async (instance, index) => {
+        const dataList: LivingCellsUpdatedPayload[] = [];
+
+        dataList.push(await instance.promisifyEvent());
+        dataList.push(await instance.promisifyEvent());
+
         const appearances = roomJoinedData.map(
           (item) => (item.newUser as Player).appearance
         );
 
-        expect(data).toMatchObject({
+        expect(dataList[0]).toMatchObject({
+          roomName: 'room2',
+          cells: [],
+        });
+
+        expect(dataList[1]).toMatchObject({
           roomName: 'room2',
           cells: [
             {
@@ -439,6 +454,114 @@ describe('Test player operations', () => {
         expect(await isPromisePending(promise)).toBe(true);
       })
     );
+  });
+
+  it('should receive the expaneded dimension', async () => {
+    expect.assertions(8);
+
+    (
+      sockets[0][RemoveLivingCells.classIdentifier] as RemoveLivingCells
+    ).clientEmitEvent([
+      { x: 11, y: 12 },
+      { x: 12, y: 11 },
+      { x: 12, y: 13 },
+      { x: 13, y: 12 },
+    ]);
+
+    (
+      sockets[0][AddLivingCells.classIdentifier] as AddLivingCells
+    ).clientEmitEvent([
+      { x: 99, y: 97 },
+      { x: 99, y: 98 },
+      { x: 99, y: 99 },
+      { x: 98, y: 99 },
+      { x: 97, y: 99 },
+    ]);
+
+    const LivingCellsUpdatedList = sockets.map(
+      (socket) =>
+        socket[LivingCellsUpdated.classIdentifier] as LivingCellsUpdated
+    );
+
+    await Promise.all(
+      LivingCellsUpdatedList.map(async (instance) => {
+        expect(await instance.promisifyEvent()).toMatchObject({
+          roomName: 'room2',
+          cells: [],
+        });
+
+        expect(await instance.promisifyEvent()).toMatchObject({
+          roomName: 'room2',
+          cells: [
+            { position: { x: 99, y: 97 } },
+            { position: { x: 99, y: 98 } },
+            { position: { x: 99, y: 99 } },
+            { position: { x: 98, y: 99 } },
+            { position: { x: 97, y: 99 } },
+          ],
+        });
+      })
+    );
+
+    (
+      sockets[1][RequestSimulation.classIdentifier] as RequestSimulation
+    ).clientEmitEvent(true);
+
+    await Promise.all(
+      LivingCellsUpdatedList.map(async (instance) => {
+        const data = await instance.promisifyEvent();
+
+        expect(data).toMatchObject({
+          roomName: 'room2',
+          cells: [
+            {
+              position: { x: 99, y: 98 },
+              isLiving: true,
+            },
+            {
+              position: { x: 100, y: 98 },
+              isLiving: true,
+            },
+            {
+              position: { x: 99, y: 99 },
+              isLiving: true,
+            },
+            {
+              position: { x: 98, y: 99 },
+              isLiving: true,
+            },
+            {
+              position: { x: 98, y: 100 },
+              isLiving: true,
+            },
+          ],
+        });
+      })
+    );
+
+    const setupClientEnvList = sockets.map(
+      (socket) => socket[SetupClientEnv.classIdentifier] as SetupClientEnv
+    );
+
+    await Promise.all(
+      setupClientEnvList.map(async (instance) => {
+        for (let i = 0; i < instance.bufferLength - 1; ++i) {
+          instance.promisifyEvent();
+        }
+
+        const data = await instance.promisifyEvent();
+        expect(data).toMatchObject({
+          dimension: {
+            upperLeft: { x: 0, y: 0 },
+            bottomRight: { x: 100, y: 100 },
+          },
+        });
+      })
+    );
+
+    (
+      sockets[1][RequestSimulation.classIdentifier] as RequestSimulation
+    ).clientEmitEvent(false);
   });
 
   afterAll(() => {

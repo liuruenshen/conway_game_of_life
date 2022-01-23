@@ -1,7 +1,7 @@
 import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import { InvalidPayload } from './InvalidPayload';
 import * as Type from '../interface';
-import { pEvent } from '../utilities/pEvent';
+import { pileUpPromisesInitator } from '../utilities/pEvent';
 
 import { DEFAULT_DIMENSION } from '../core/GameOfLife';
 
@@ -12,6 +12,7 @@ export class SetupClientEnv extends BaseSocketEvent<
   Type.SetupClientPayload
 > {
   #invalidPayload: InvalidPayload;
+  #pileUpPromise = pileUpPromisesInitator<Type.SetupClientPayload>();
 
   constructor(
     props: Omit<BaseSocketEventProps<'setup-client-env'>, 'eventName'>
@@ -37,14 +38,23 @@ export class SetupClientEnv extends BaseSocketEvent<
     this.serverSocket?.emit(this.eventName, payload);
   }
 
+  notifyDimensionChanged(roomName: string, payload: Type.SetupClientPayload) {
+    this.server?.in(roomName).emit(this.eventName, payload);
+  }
+
   clientEventHandler(data: Type.SetupClientPayload): void {
     this.data = data;
+    this.#pileUpPromise.pileUp(data);
   }
 
   serverEventHandler(): void {}
 
+  get bufferLength() {
+    return this.#pileUpPromise.bufferLength();
+  }
+
   promisifyEvent(): Promise<Type.SetupClientPayload> {
-    return pEvent(this.socket, this.eventName, {
+    return this.#pileUpPromise.fetch(this.socket, this.eventName, {
       rejectEvents: [this.#invalidPayload.eventName],
     });
   }

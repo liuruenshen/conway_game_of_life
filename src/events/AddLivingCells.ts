@@ -9,6 +9,7 @@ import { addLivingCell } from '../modules/room';
 import { InvalidPayload } from './InvalidPayload';
 import { RoomJoined } from './RoomJoined';
 import { LivingCellsUpdated } from './LivingCellsUpdated';
+import { isPlayer } from '../validator/isPlayer';
 
 const CLASS_IDENTIFIER = Symbol('AddLivingCells');
 
@@ -64,7 +65,7 @@ export class AddLivingCells extends BaseSocketEvent<
 
     const { newUser, roomStatus, roomName } = this.#roomJoined.data;
 
-    if (!newUser || !roomStatus || !this.#roomJoined.isPlayer(newUser)) {
+    if (!newUser || !roomStatus || !isPlayer(newUser)) {
       return;
     }
 

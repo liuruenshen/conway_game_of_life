@@ -2,6 +2,7 @@ import { BaseSocketEvent, BaseSocketEventProps } from './BaseSocketEvent';
 import * as Type from '../interface';
 
 import { InvalidPayload } from './InvalidPayload';
+import { SetupClientEnv } from './SetupClientEnv';
 
 import { pileUpPromisesInitator } from '../utilities/pEvent';
 import {
@@ -9,8 +10,10 @@ import {
   findRoomByUserId,
   runSimulation,
   getRoom,
+  getBottomRightBoundary,
 } from '../modules/room';
 import { sleep } from '../utilities/sleep';
+import { DEFAULT_DIMENSION } from '../core/GameOfLife';
 
 const CLASS_IDENTIFIER = Symbol('LivingCellsUpdated');
 
@@ -19,6 +22,7 @@ export class LivingCellsUpdated extends BaseSocketEvent<
   Type.LivingCellsUpdatedPayload
 > {
   #invalidPayload: InvalidPayload;
+  #setupClientEnv: SetupClientEnv;
   #pileUpPromise = pileUpPromisesInitator<Type.LivingCellsUpdatedPayload>();
 
   constructor(
@@ -31,6 +35,10 @@ export class LivingCellsUpdated extends BaseSocketEvent<
 
     this.#invalidPayload = this.getOrSetAttatchedEventSocket(
       InvalidPayload,
+      props
+    );
+    this.#setupClientEnv = this.getOrSetAttatchedEventSocket(
+      SetupClientEnv,
       props
     );
   }
@@ -55,17 +63,30 @@ export class LivingCellsUpdated extends BaseSocketEvent<
     const generator = runSimulation(roomName);
 
     for (const cells of generator) {
+      const bottomRightBoundary = getBottomRightBoundary(roomName);
+      if (
+        bottomRightBoundary &&
+        (bottomRightBoundary.x !== DEFAULT_DIMENSION.bottomRight.x ||
+          bottomRightBoundary.y !== DEFAULT_DIMENSION.bottomRight.y)
+      ) {
+        this.#setupClientEnv.notifyDimensionChanged(roomName, {
+          dimension: {
+            ...DEFAULT_DIMENSION,
+            bottomRight: { x: bottomRightBoundary.x, y: bottomRightBoundary.y },
+          },
+        });
+      }
+
       this.serverEmitEvent({
         roomName,
         cells,
         simulationFrame: room.simulationFrame,
       });
-
       await sleep(500);
     }
   }
 
-  updateLivingCell() {
+  updateLivingCell(updateItself = false) {
     if (!this.serverSocket) {
       return;
     }
@@ -80,10 +101,16 @@ export class LivingCellsUpdated extends BaseSocketEvent<
       return;
     }
 
-    this.serverEmitEvent({
-      roomName,
-      cells,
-    });
+    if (updateItself) {
+      if (this.serverSocket) {
+        this.serverSocket.emit(this.eventName, { roomName, cells });
+      }
+    } else {
+      this.serverEmitEvent({
+        roomName,
+        cells,
+      });
+    }
   }
 
   serverEmitEvent(payload: Type.LivingCellsUpdatedPayload): void {

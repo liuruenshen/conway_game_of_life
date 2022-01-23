@@ -102,8 +102,8 @@ export function removeGuest(roomName: string, guestId: Type.Guest['id']) {
   }
 }
 
-export function getRoomList() {
-  return Object.entries(roomMap).map(([key, room]) => room);
+export function getRoomNames() {
+  return Object.entries(roomMap).map(([key, room]) => room.name);
 }
 
 export function hasRoom(roomName: string) {
@@ -224,7 +224,7 @@ export function* runSimulation(roomName: string) {
   }
 
   while (isRunningSimulation(roomName)) {
-    room.gameOfLife.runEnvolution();
+    room.gameOfLife.runEvolution();
     room.simulationFrame++;
     yield room.gameOfLife.currentLivingCells;
   }
@@ -259,4 +259,13 @@ export function requestStopSimulation(roomName: string, playerId: string) {
 
   player.requestStartSimulation = false;
   return true;
+}
+
+export function getBottomRightBoundary(roomName: string) {
+  const room = getRoom(roomName);
+  if (!room) {
+    return false;
+  }
+
+  return room.gameOfLife.bottomRightBoundary;
 }

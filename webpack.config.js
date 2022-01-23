@@ -2,7 +2,7 @@
 /* eslint no-undef: "off" */
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { default: MiniCssExtractPlugin } = require('mini-css-extract-plugin');
 const { DefinePlugin } = require('webpack');
 
 const rootPath = __dirname;
@@ -10,7 +10,11 @@ const rootPath = __dirname;
 module.exports = function (env, argv) {
   return {
     devtool: 'inline-source-map',
-    entry: './src/index.tsx',
+    entry: './src/client/index.tsx',
+    cache: {
+      type: 'filesystem',
+    },
+
     output: {
       path: path.resolve(rootPath, 'dist'),
       filename: '[name].js',
@@ -18,15 +22,11 @@ module.exports = function (env, argv) {
 
     resolve: {
       extensions: ['.tsx', '.ts', '.jsx', '.js'],
+      symlinks: false,
     },
 
     module: {
       rules: [
-        {
-          enforce: 'pre',
-          test: /\.js$/,
-          loader: 'source-map-loader',
-        },
         {
           test: /\.tsx?$/,
           use: [
@@ -40,6 +40,7 @@ module.exports = function (env, argv) {
               loader: 'ts-loader',
             },
           ],
+          include: path.resolve(__dirname, 'src'),
         },
         {
           test: /\.css$/,

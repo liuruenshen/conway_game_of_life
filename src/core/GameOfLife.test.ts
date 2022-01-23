@@ -57,7 +57,7 @@ describe('Test GameOfLife class', () => {
       },
     ]);
 
-    gameOfLife.runEnvolution();
+    gameOfLife.runEvolution();
 
     const currentLivingCells = gameOfLife.currentLivingCells;
     expect(currentLivingCells).toMatchObject([
@@ -124,7 +124,7 @@ describe('Test GameOfLife class', () => {
       },
     ]);
 
-    gameOfLife.runEnvolution();
+    gameOfLife.runEvolution();
 
     const currentLivingCells = gameOfLife.currentLivingCells;
     expect(currentLivingCells).toMatchObject([
