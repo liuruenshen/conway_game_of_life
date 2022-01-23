@@ -7,6 +7,9 @@ import {
 } from '../../modules/socketEvents';
 import * as Type from '../../../interface';
 import { GameOfLife } from '../../../core/GameOfLife';
+import { PatternsChildProps } from '../Patterns/Patterns';
+
+import { PATTERN_MAP } from '../../../patterns/patternsMap';
 
 const CELL_WIDTH = 16;
 const CELL_HEIGHT = 16;
@@ -27,7 +30,11 @@ function hslToCssHsl(hsl: Type.Hsl) {
   return `hsl(${hsl.hue}, ${hsl.saturation}%, ${hsl.light}%)`;
 }
 
-export function GameOfLifeScene() {
+export function GameOfLifeScene({
+  placingPatterns,
+  placingPatternName,
+  placePatterns,
+}: PatternsChildProps) {
   const canvasRef = useRef<Canvas>({ element: null, context: null });
   const livingCellsUpdatedInfo = useRef<Type.LivingCellsUpdatedPayload | null>(
     null
@@ -46,11 +53,27 @@ export function GameOfLifeScene() {
       y: Math.floor(offsetY / (CELL_HEIGHT + 1)),
     };
 
-    const positionKey = GameOfLife.getPositionKey(position);
-    if (!livingCellsPositionMap.current[positionKey]) {
-      addLivingCells([position]);
+    if (placingPatterns) {
+      let patternPositions = PATTERN_MAP[placingPatternName];
+      if (!Array.isArray(patternPositions)) {
+        return;
+      }
+
+      patternPositions = patternPositions.map((item) => ({
+        x: item.x + position.x,
+        y: item.y + position.y,
+      }));
+
+      addLivingCells(patternPositions);
+
+      placePatterns();
     } else {
-      removeLivingCells([position]);
+      const positionKey = GameOfLife.getPositionKey(position);
+      if (!livingCellsPositionMap.current[positionKey]) {
+        addLivingCells([position]);
+      } else {
+        removeLivingCells([position]);
+      }
     }
   };
 
