@@ -9,6 +9,4 @@ node_modules
 .eslintcache
 .tsbuildinfo
 
-dist
-
 coverage

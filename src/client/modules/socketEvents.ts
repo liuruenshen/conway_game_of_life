@@ -19,7 +19,14 @@ import { pEvent } from '../../utilities/pEvent';
 
 import { WS_PORT } from '../../server/constant';
 
-const socket = io(`http://localhost:${WS_PORT}`) as Type.IOClientSocket;
+declare global {
+  const WEBPACK_MODE: string;
+}
+
+const socket =
+  WEBPACK_MODE === 'development'
+    ? (io(`http://localhost:${WS_PORT}`) as Type.IOClientSocket)
+    : (io() as Type.IOClientSocket);
 
 new CreateRoom({ clientSocket: socket });
 new JoinRoom({ clientSocket: socket });
