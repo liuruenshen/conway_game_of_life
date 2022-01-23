@@ -17,6 +17,7 @@ import * as Type from '../../../interface';
 
 import {
   roomJoined,
+  roomLeaved,
   getRoomStatus,
   requestSimulation,
 } from '../../modules/socketEvents';
@@ -41,6 +42,14 @@ export function ControlPanel() {
         return;
       }
       setRoomStatus(payload.roomStatus);
+    });
+
+    roomLeaved((roomStatus) => {
+      if (!roomStatus) {
+        return;
+      }
+
+      setRoomStatus(roomStatus);
     });
   }, []);
 

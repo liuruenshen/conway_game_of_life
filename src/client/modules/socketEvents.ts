@@ -32,6 +32,7 @@ new RequestSimulationUpdated({ clientSocket: socket });
 new GetRoomNames({ clientSocket: socket });
 new RoomNamesUpdated({ clientSocket: socket });
 new SetupClientEnv({ clientSocket: socket });
+new RoomLeaved({ clientSocket: socket });
 
 type ConnectFailedCallback = (error: string) => void;
 
@@ -106,12 +107,19 @@ export async function roomJoined(
   }
 }
 
-export async function roomLeaved(callback: () => void) {
+export async function roomLeaved(
+  callback: (data: Type.RoomJoinedPayload['roomStatus'] | null) => void
+) {
   await connectSocket();
+
   const instance = socket[RoomLeaved.classIdentifier] as RoomLeaved;
+  const roomJoinedInstance = socket[RoomJoined.classIdentifier] as RoomJoined;
+
   while (socket.connected) {
     await instance.promisifyEvent();
-    callback();
+    callback({
+      ...(roomJoinedInstance.data?.roomStatus || { players: [], guests: [] }),
+    });
   }
 }
 
