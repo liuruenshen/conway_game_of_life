@@ -165,7 +165,7 @@ export async function requestSimulation(startSimulation: boolean) {
 }
 
 export async function requestSimulationUpdated(
-  callback: (payload: Type.RequestSimulationPayload) => void
+  callback: (payload: Type.RoomJoinedPayload['roomStatus']) => void
 ) {
   await connectSocket();
 
@@ -173,8 +173,13 @@ export async function requestSimulationUpdated(
     RequestSimulationUpdated.classIdentifier
   ] as RequestSimulationUpdated;
 
+  const roomJoinedInstance = socket[RoomJoined.classIdentifier] as RoomJoined;
+
   while (socket.connected) {
-    callback(await instance.promisifyEvent());
+    await instance.promisifyEvent();
+    callback({
+      ...(roomJoinedInstance.data?.roomStatus || { players: [], guests: [] }),
+    });
   }
 }
 
