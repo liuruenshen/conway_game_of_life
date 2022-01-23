@@ -73,10 +73,11 @@
     "lint-staged:tsc": "tsc --noEmit && :",
     "lint-staged": "run-p 'lint-staged:* {@}'",
     "build": "webpack -c webpack.config.js --mode production",
-    "dev:ws": "ts-node --project ./tsconfig.node.json ./src/server/server.ts",
+    "dev:ws": "ts-node --project ./tsconfig.node.json ./src/server/devServer.ts",
     "dev:serve": "webpack serve -c webpack.config.js --mode development",
+    "start": "ts-node --project ./tsconfig.node.json ./src/server/prodServer.ts",
     "test": "jest",
-    "start": "run-p 'dev:*'"
+    "dev-start": "run-p 'dev:*'"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.6",

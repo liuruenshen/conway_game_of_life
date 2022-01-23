@@ -11,14 +11,18 @@ import FaceIcon from '@mui/icons-material/Face';
 import PersonIcon from '@mui/icons-material/Person';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 
 import { isPlayer as isPlayerValidator } from '../../../validator/isPlayer';
 import * as Type from '../../../interface';
 
 import {
   roomJoined,
+  roomLeaved,
   getRoomStatus,
   requestSimulation,
+  requestSimulationUpdated,
 } from '../../modules/socketEvents';
 
 export function ControlPanel() {
@@ -41,6 +45,22 @@ export function ControlPanel() {
         return;
       }
       setRoomStatus(payload.roomStatus);
+    });
+
+    roomLeaved((roomStatus) => {
+      if (!roomStatus) {
+        return;
+      }
+
+      setRoomStatus(roomStatus);
+    });
+
+    requestSimulationUpdated((roomStatus) => {
+      if (!roomStatus) {
+        return;
+      }
+
+      setRoomStatus(roomStatus);
     });
   }, []);
 
@@ -83,6 +103,13 @@ export function ControlPanel() {
               <ListItem key={item.id}>
                 <ListItemIcon>
                   <FaceIcon color="primary" />
+                </ListItemIcon>
+                <ListItemIcon>
+                  {item.requestStartSimulation ? (
+                    <PauseIcon></PauseIcon>
+                  ) : (
+                    <PlayArrowIcon></PlayArrowIcon>
+                  )}
                 </ListItemIcon>
                 <ListItemText>{`${item.id.slice(0, 8)}...`}</ListItemText>
               </ListItem>

@@ -19,7 +19,14 @@ import { pEvent } from '../../utilities/pEvent';
 
 import { WS_PORT } from '../../server/constant';
 
-const socket = io(`http://localhost:${WS_PORT}`) as Type.IOClientSocket;
+declare global {
+  const WEBPACK_MODE: string;
+}
+
+const socket =
+  WEBPACK_MODE === 'development'
+    ? (io(`http://localhost:${WS_PORT}`) as Type.IOClientSocket)
+    : (io() as Type.IOClientSocket);
 
 new CreateRoom({ clientSocket: socket });
 new JoinRoom({ clientSocket: socket });
@@ -32,6 +39,7 @@ new RequestSimulationUpdated({ clientSocket: socket });
 new GetRoomNames({ clientSocket: socket });
 new RoomNamesUpdated({ clientSocket: socket });
 new SetupClientEnv({ clientSocket: socket });
+new RoomLeaved({ clientSocket: socket });
 
 type ConnectFailedCallback = (error: string) => void;
 
@@ -106,12 +114,19 @@ export async function roomJoined(
   }
 }
 
-export async function roomLeaved(callback: () => void) {
+export async function roomLeaved(
+  callback: (data: Type.RoomJoinedPayload['roomStatus'] | null) => void
+) {
   await connectSocket();
+
   const instance = socket[RoomLeaved.classIdentifier] as RoomLeaved;
+  const roomJoinedInstance = socket[RoomJoined.classIdentifier] as RoomJoined;
+
   while (socket.connected) {
     await instance.promisifyEvent();
-    callback();
+    callback({
+      ...(roomJoinedInstance.data?.roomStatus || { players: [], guests: [] }),
+    });
   }
 }
 
@@ -157,7 +172,7 @@ export async function requestSimulation(startSimulation: boolean) {
 }
 
 export async function requestSimulationUpdated(
-  callback: (payload: Type.RequestSimulationPayload) => void
+  callback: (payload: Type.RoomJoinedPayload['roomStatus']) => void
 ) {
   await connectSocket();
 
@@ -165,8 +180,13 @@ export async function requestSimulationUpdated(
     RequestSimulationUpdated.classIdentifier
   ] as RequestSimulationUpdated;
 
+  const roomJoinedInstance = socket[RoomJoined.classIdentifier] as RoomJoined;
+
   while (socket.connected) {
-    callback(await instance.promisifyEvent());
+    await instance.promisifyEvent();
+    callback({
+      ...(roomJoinedInstance.data?.roomStatus || { players: [], guests: [] }),
+    });
   }
 }
 

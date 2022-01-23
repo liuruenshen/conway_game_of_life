@@ -66,6 +66,7 @@ module.exports = function (env, argv) {
       new MiniCssExtractPlugin(),
       new DefinePlugin({
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        WEBPACK_MODE: JSON.stringify(argv.mode),
       }),
     ],
   };

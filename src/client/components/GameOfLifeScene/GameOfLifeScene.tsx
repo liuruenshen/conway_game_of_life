@@ -78,15 +78,33 @@ export function GameOfLifeScene() {
     context.lineWidth = 1;
     for (let i = 0; i < columns; ++i) {
       context.beginPath();
+      context.strokeStyle = 'hsl(0, 0%, 30%)';
       context.moveTo(i * (CELL_WIDTH + 1), 0);
       context.lineTo(i * (CELL_WIDTH + 1), dimension.height);
+      context.stroke();
+
+      context.beginPath();
+      context.strokeStyle = GRID_BACKGROUND;
+      context.moveTo(i * (CELL_WIDTH + 1) - 1, 0);
+      context.lineTo(i * (CELL_WIDTH + 1) - 1, dimension.height);
+      context.moveTo(i * (CELL_WIDTH + 1) + 1, 0);
+      context.lineTo(i * (CELL_WIDTH + 1) + 1, dimension.height);
       context.stroke();
     }
 
     for (let i = 0; i < rows; ++i) {
       context.beginPath();
+      context.strokeStyle = 'hsl(0, 0%, 30%)';
       context.moveTo(0, i * (CELL_HEIGHT + 1));
       context.lineTo(dimension.width, i * (CELL_HEIGHT + 1));
+      context.stroke();
+
+      context.beginPath();
+      context.strokeStyle = GRID_BACKGROUND;
+      context.moveTo(0, i * (CELL_HEIGHT + 1) - 1);
+      context.lineTo(dimension.width, i * (CELL_HEIGHT + 1) - 1);
+      context.moveTo(0, i * (CELL_HEIGHT + 1) + 1);
+      context.lineTo(dimension.width, i * (CELL_HEIGHT + 1) + 1);
       context.stroke();
     }
   }
