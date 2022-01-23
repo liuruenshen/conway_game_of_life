@@ -15,7 +15,6 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
-import Tooltip from '@mui/material/Tooltip';
 
 import { PatternsChildProps } from '../Patterns/Patterns';
 

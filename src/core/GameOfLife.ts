@@ -20,9 +20,9 @@ export class GameOfLife {
     this.addLivingCells(livingCells);
   }
 
-  private getEnvolvingCells(): Type.EnvolvingCells {
+  private getInvolvingCells(): Type.InvolvingCells {
     return this.#currentLivingCells
-      .map<Type.EnvolvingCells>((cell) => {
+      .map<Type.InvolvingCells>((cell) => {
         const { x, y } = cell.position;
 
         return [
@@ -92,9 +92,9 @@ export class GameOfLife {
     return `${position.x},${position.y}`;
   }
 
-  private getEnvolvingCellMap(): Type.EnvolvingCellMap {
-    const envolvingCellsMap: Type.EnvolvingCellMap = {};
-    const envolvingCells = this.getEnvolvingCells();
+  private getInvolvingCellMap(): Type.InvolvingCellMap {
+    const envolvingCellsMap: Type.InvolvingCellMap = {};
+    const envolvingCells = this.getInvolvingCells();
 
     envolvingCells.forEach((cell) => {
       const posKey = GameOfLife.getPositionKey(cell.position);
@@ -138,8 +138,8 @@ export class GameOfLife {
     return result;
   }
 
-  private calculateEnvolvedResult() {
-    const envolvingCellsMap = this.getEnvolvingCellMap();
+  private calculateInvolvedResult() {
+    const envolvingCellsMap = this.getInvolvingCellMap();
     const newBottomRight: CommonType.Position = { x: 0, y: 0 };
 
     this.#mutatedLivingCells = [];
@@ -195,7 +195,7 @@ export class GameOfLife {
   }
 
   public runEvolution() {
-    this.calculateEnvolvedResult();
+    this.calculateInvolvedResult();
     this.#currentLivingCells = this.#mutatedLivingCells;
     this.setCurrentLivingCellPositionMap();
   }

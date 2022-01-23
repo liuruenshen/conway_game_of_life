@@ -56,7 +56,7 @@ export function CreateOrSelectRoom() {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Box>Join a existing room</Box>
+          <Box>Join an existing room</Box>
           <Box>
             <Select
               sx={{ width: 250 }}

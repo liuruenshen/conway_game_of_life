@@ -1,8 +1,8 @@
 import { Cell } from '../interface';
 
-export type EnvolvingCells = Cell[];
+export type InvolvingCells = Cell[];
 
-export type EnvolvingCellMap = Record<string, Cell>;
+export type InvolvingCellMap = Record<string, Cell>;
 
 export type MutatedLivingCells = Cell<true>[];
 
