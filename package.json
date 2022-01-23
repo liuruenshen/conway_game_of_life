@@ -75,9 +75,9 @@
     "build": "webpack -c webpack.config.js --mode production",
     "dev:ws": "ts-node --project ./tsconfig.node.json ./src/server/devServer.ts",
     "dev:serve": "webpack serve -c webpack.config.js --mode development",
-    "start": "ts-node --project ./tsconfig.node.json ./src/server/prodServer.ts",
+    "prod": "ts-node --project ./tsconfig.node.json ./src/server/prodServer.ts",
     "test": "jest",
-    "dev-start": "run-p 'dev:*'"
+    "start-dev": "run-p 'dev:*'"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.6",
