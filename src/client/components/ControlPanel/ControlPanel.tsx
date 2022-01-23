@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
+import LoadingButton from '@mui/lab/LoadingButton';
+
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Stack from '@mui/material/Stack';
@@ -13,6 +15,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import Tooltip from '@mui/material/Tooltip';
+
+import { PatternsChildProps } from '../Patterns/Patterns';
 
 import { isPlayer as isPlayerValidator } from '../../../validator/isPlayer';
 import * as Type from '../../../interface';
@@ -25,7 +30,10 @@ import {
   requestSimulationUpdated,
 } from '../../modules/socketEvents';
 
-export function ControlPanel() {
+export function ControlPanel({
+  placingPatterns,
+  getPatterns,
+}: PatternsChildProps) {
   const [isPlayer, setIsPlayer] = useState<boolean>(false);
   const [roomStatus, setRoomStatus] = useState<
     Type.RoomJoinedPayload['roomStatus']
@@ -143,6 +151,55 @@ export function ControlPanel() {
             </FormGroup>
           </Paper>
         ) : null}
+        <Paper
+          sx={(theme) => ({
+            height: 1,
+            width: 400,
+            boxSizing: 'border-box',
+            borderRadius: 2,
+            backgroundColor: theme.extendBackground.light,
+            padding: 2,
+          })}
+        >
+          <Stack direction="column" spacing={2}>
+            <Box>
+              Click on the button which the pattern you want, then click on the
+              cell to place the pattern
+            </Box>
+            <Stack direction="row" spacing={2}>
+              <LoadingButton
+                variant="contained"
+                loading={placingPatterns}
+                loadingPosition="start"
+                onClick={() => {
+                  getPatterns('101');
+                }}
+              >
+                101
+              </LoadingButton>
+              <LoadingButton
+                variant="contained"
+                loading={placingPatterns}
+                loadingPosition="start"
+                onClick={() => {
+                  getPatterns('diamond4812');
+                }}
+              >
+                Diamond 4-8-12
+              </LoadingButton>
+              <LoadingButton
+                variant="contained"
+                loading={placingPatterns}
+                loadingPosition="start"
+                onClick={() => {
+                  getPatterns('boat4');
+                }}
+              >
+                4 Boat
+              </LoadingButton>
+            </Stack>
+          </Stack>
+        </Paper>
       </Stack>
     </Box>
   );

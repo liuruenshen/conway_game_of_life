@@ -5,6 +5,7 @@ import { MainLayout } from '../layout/MainLayout';
 import { Scene } from '../layout/Scene';
 import { GameOfLifeScene } from '../GameOfLifeScene/GameOfLifeScene';
 import { ControlPanel } from '../ControlPanel/ControlPanel';
+import { Patterns } from '../Patterns/Patterns';
 
 import { CreateOrSelectRoom } from '../CreateOrSelectRoom/CreateOrSelectRoom';
 
@@ -14,11 +15,17 @@ render(
   <React.StrictMode>
     <AppTheme>
       <MainLayout>
-        <CreateOrSelectRoom />
-        <Scene>
-          <GameOfLifeScene />
-        </Scene>
-        <ControlPanel />
+        <Patterns>
+          {(props) => (
+            <>
+              <CreateOrSelectRoom />
+              <Scene>
+                <GameOfLifeScene {...props} />
+              </Scene>
+              <ControlPanel {...props} />
+            </>
+          )}
+        </Patterns>
       </MainLayout>
     </AppTheme>
   </React.StrictMode>,

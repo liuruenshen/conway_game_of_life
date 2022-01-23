@@ -9,6 +9,7 @@
     "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
     "@mui/icons-material": "^5.2.5",
+    "@mui/lab": "^5.0.0-alpha.65",
     "@mui/material": "^5.2.7",
     "@reduxjs/toolkit": "^1.7.1",
     "core-js": "^3.19.0",
